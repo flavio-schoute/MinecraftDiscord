@@ -1,0 +1,10 @@
+# Bot token, retrieved from https://discordapp.com/developers/applications/me
+token: XXXXXXXXXXXXXXXXXXXXXXXX.XXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# @TODO: Add wiki link
+# Game presence on Discord, go to ... for more information
+presence:
+  enabled: false
+  type-status: ONLINE
+  type-activity: PLAYING
+  text: 'Linking servers...'
