@@ -17,6 +17,8 @@
 
 package io.github.jordieh.minecraftdiscord.discord;
 
+import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
+import io.github.jordieh.minecraftdiscord.testing.Properties;
 import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
 import sx.blah.discord.api.ClientBuilder;
@@ -24,73 +26,86 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.obj.ActivityType;
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.StatusType;
+import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.RequestBuffer;
 
 public class ClientHandler {
 
     private static ClientHandler instance;
+
     @Getter private IDiscordClient client;
 
     private ClientHandler() {
-//        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
-//        String token = configuration.getString("token");
+        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
+        String token = configuration.getString("token");
 
-        String token = "Dacht het niet";
+//        String token = Properties.getInstance().getProperty("token");
 
         ClientBuilder builder = new ClientBuilder();
         builder.withRecommendedShardCount();
         builder.withToken(token);
-        builder.registerListener(this);
-        client = builder.login();
+        builder.registerListener(this); // ReadyEvent
+        try {
+            this.client = builder.login();
+        } catch (DiscordException e) {
+            e.printStackTrace();
+        }
     }
 
     public static ClientHandler getInstance() {
         return instance == null ? instance = new ClientHandler() : instance;
     }
 
-    @EventSubscriber
-    public void onReadyEvent(ReadyEvent event) {
-//        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
-//        this.updatePresence(configuration);
-        this.updatePresence();
+    public void sendMessage(IChannel channel, String message) {
+        RequestBuffer.request(() -> {
+            try {
+                channel.sendMessage(message);
+            } catch (DiscordException | MissingPermissionsException e) {
+                e.printStackTrace();
+            }
+        }).get();
     }
 
-//    @TODO: FIX IMPLEMENTEREN
+    @EventSubscriber
+    public void onReadyEvent(ReadyEvent event) {
+        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
+        this.updatePresence(configuration);
+//        this.updatePresence();
+    }
+
     @Deprecated
     private void updatePresence() {
+        if (!Properties.getInstance().getProperty("enabled").equals("TRUE")) {
+//            this.logger.debug("Discord presence is disabled");
+            return;
+        }
 
         StatusType status;
         try {
-            status = StatusType.ONLINE;
+            status = StatusType.valueOf(Properties.getInstance().getProperty("status"));
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            System.out.println("1");
+//            this.logger.warn("Invalid status type '%s' detected in config", Properties.getInstance().getProperty("status"));
             status = StatusType.ONLINE;
         }
 
         ActivityType activity;
         try {
-            activity = ActivityType.PLAYING;
+            activity = ActivityType.valueOf(Properties.getInstance().getProperty("activity"));
         } catch (IllegalArgumentException e) {
-            System.out.println("2");
-            e.printStackTrace();
+//            this.logger.warn("Invalid activity type '%s' detected in config", Properties.getInstance().getProperty("activity"));
             activity = ActivityType.PLAYING;
         }
 
-        // Streaming uses a separate method that we will not be allowing
         if (activity == ActivityType.STREAMING) {
-            System.out.println("3");
+//            this.logger.warn("Detected usage of ActivityType.STREAMING, this activity type is not supported!");
             activity = ActivityType.PLAYING;
         }
 
-        String text = "play.dusdavidgames.nl";
-
-        try {
-            this.client.changePresence(status, activity, text);
-
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+        String text = Properties.getInstance().getProperty("text");
+        this.client.changePresence(status, activity, text);
     }
 
     private void updatePresence(FileConfiguration configuration) {

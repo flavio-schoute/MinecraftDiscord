@@ -8,3 +8,6 @@ presence:
   type-status: ONLINE
   type-activity: PLAYING
   text: 'Linking servers...'
+
+# Message format type in Discord, got to ... for more information
+output-type: webhook

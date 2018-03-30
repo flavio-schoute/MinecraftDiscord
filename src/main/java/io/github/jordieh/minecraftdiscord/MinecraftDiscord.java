@@ -18,7 +18,12 @@
 package io.github.jordieh.minecraftdiscord;
 
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
+import io.github.jordieh.minecraftdiscord.listeners.AsyncPlayerChatListener;
 import lombok.Getter;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class MinecraftDiscord extends JavaPlugin {
@@ -27,14 +32,24 @@ public final class MinecraftDiscord extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        System.out.println("============== [MinecraftDiscord] ==============");
+        BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
         instance = this;
+//        getConfig().options().copyDefaults(true);
+        saveDefaultConfig();
 
         ClientHandler.getInstance();
+
+        new AsyncPlayerChatListener();
+
+        Metrics metrics = new Metrics(this);
+        System.out.println("============== [MinecraftDiscord] ==============");
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        ClientHandler.getInstance().getClient().logout();
     }
 
 }

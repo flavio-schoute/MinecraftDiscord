@@ -15,34 +15,19 @@
  *     along with MinecraftDiscord.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.github.jordieh.minecraftdiscord;
+package io.github.jordieh.minecraftdiscord.listeners;
 
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
+import io.github.jordieh.minecraftdiscord.util.EventListener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.awt.*;
+public class AsyncPlayerChatListener extends EventListener<AsyncPlayerChatEvent> {
 
-@Deprecated
-public class MainRunnerTest extends Frame {
-
-    public MainRunnerTest() throws HeadlessException {// Panel is a container
-        Button btn = new Button("Exit Discord"); // Button is a component
-        setTitle("Discord control");
-        Label label = new Label("Button for exiting Discord");
-        setLayout(new FlowLayout());
-        add(label);
-        add(btn);
-        setResizable(false);
-        btn.addActionListener((a) -> {
-            ClientHandler.getInstance().getClient().logout();
-            System.exit(0);
-        });
-        setVisible(true);
-        setSize(400, 100);
-    }
-
-    public static void main(String[] args) {
-        ClientHandler.getInstance();
-
-        new MainRunnerTest();
+    // @TODO: Do something
+    public AsyncPlayerChatListener() {
+        super(event -> ClientHandler.getInstance().sendMessage(
+                ClientHandler.getInstance().getClient()
+                        .getGuilds().get(0).getChannelsByName(event.getPlayer().getWorld().getName()).get(0),
+                event.getMessage()));
     }
 }
