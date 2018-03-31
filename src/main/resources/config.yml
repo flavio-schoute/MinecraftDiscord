@@ -1,13 +1,20 @@
 # Bot token, retrieved from https://discordapp.com/developers/applications/me
 token: XXXXXXXXXXXXXXXXXXXXXXXX.XXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXX
+# GuildID, see ... for information on how to retrieve this!
+guild: 0
 
-# @TODO: Add wiki link
-# Game presence on Discord, go to ... for more information
+# Game presence on Discord, see ... for more information
 presence:
   enabled: false
   type-status: ONLINE
   type-activity: PLAYING
   text: 'Linking servers...'
 
-# Message format type in Discord, got to ... for more information
+# Message format type in Discord, see ... for more information
 output-type: webhook
+
+console-channel: 0
+shutdown-channel: 0
+
+# Please don't touch these options
+first-startup: true

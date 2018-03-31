@@ -19,37 +19,71 @@ package io.github.jordieh.minecraftdiscord;
 
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.listeners.AsyncPlayerChatListener;
+import io.github.jordieh.minecraftdiscord.metrics.MetricsHandler;
 import lombok.Getter;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.bstats.bukkit.Metrics;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.PatternLayout;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class MinecraftDiscord extends JavaPlugin {
+
+    private final Logger logger = LoggerFactory.getLogger(MinecraftDiscord.class);
+
+    // Resolving log4j dependency TODO Find a way to fix this in the pom.xml
+    // InputStream in = getClass().getClassLoader().getResourceAsStream("log4j.properties");
+    // PropertyConfigurator.configure(in);
+    static {
+        ConsoleAppender appender = new ConsoleAppender();
+        PatternLayout layout = new PatternLayout();
+        FileAppender fileAppender = new FileAppender();
+    }
 
     @Getter private static MinecraftDiscord instance;
 
     @Override
     public void onEnable() {
+        double startup = System.currentTimeMillis();
         System.out.println("============== [MinecraftDiscord] ==============");
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
+
         instance = this;
-//        getConfig().options().copyDefaults(true);
+
+        logger.trace("Implementing default config configuration");
+        getConfig().options().copyDefaults(true);
         saveDefaultConfig();
 
-        ClientHandler.getInstance();
+        Map<String, Long> longMap = new HashMap<>();
+        World world = Bukkit.getWorld("world");
+        longMap.put(world.getName(), 429073131869569044L);
+        longMap.put("nether", 429073131869544L);
+        getConfig().set("linked-worlds", longMap);
+        saveConfig();
 
         new AsyncPlayerChatListener();
 
-        Metrics metrics = new Metrics(this);
+        MetricsHandler.getInstance();
+        ClientHandler.getInstance();
+
+        startup = ((System.currentTimeMillis() - startup)) / 1000.0d;
+        NumberFormat format = new DecimalFormat("#0.00");
+        logger.info("The plugin has been enabled in {} seconds", format.format(startup));
         System.out.println("============== [MinecraftDiscord] ==============");
     }
 
     @Override
     public void onDisable() {
-        ClientHandler.getInstance().getClient().logout();
+        logger.debug("Plugin disable procedure has been engaged");
+        saveConfig();
+        ClientHandler.getInstance().disable();
     }
 
 }

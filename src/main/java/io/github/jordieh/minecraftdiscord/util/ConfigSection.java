@@ -15,25 +15,31 @@
  *     along with MinecraftDiscord.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.github.jordieh.minecraftdiscord.metrics;
+package io.github.jordieh.minecraftdiscord.util;
 
-import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
-import org.bstats.bukkit.Metrics;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+/**
+ * Utility enum for exact config.yml path selection
+ */
+public enum ConfigSection {
 
-public class MetricsHandler {
+    TOKEN("token"),
+    GUILD("guild"),
 
-    private final Logger logger = LoggerFactory.getLogger(MetricsHandler.class);
+    PRESENCE_ENABLED("presence.enabled"),
+    PRESENCE_STATUS("presence.type-status"),
+    PRESENCE_ACTIVITY("presence.type-activity"),
+    PRESENCE_TEXT("presence.text"),
 
-    private static MetricsHandler instance;
+    OUTPUT_TYPE("output-type"),
 
-    private MetricsHandler() {
-        logger.debug("Constructing MetricsHandler");
-        Metrics metrics = new Metrics(MinecraftDiscord.getInstance());
-    }
+    CONSOLE_CHANNEL("console-channel"),
+    SHUTDOWN_CHANNEL("shutdown-channel"),
 
-    public static MetricsHandler getInstance() {
-        return instance == null ? instance = new MetricsHandler() : instance;
+    FIRST_STARTUP("first-startup");
+
+    public final String PATH;
+
+    ConfigSection(String PATH) {
+        this.PATH = PATH;
     }
 }

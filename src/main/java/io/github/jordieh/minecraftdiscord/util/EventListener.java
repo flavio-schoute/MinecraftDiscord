@@ -24,20 +24,20 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
 
 public class EventListener<T extends Event> implements Listener {
 
-//    private final Logger logger;
+    final Logger logger = LoggerFactory.getLogger(EventListener.class);
 
     public EventListener(@NonNull Consumer<T> consumer) {
-//        this.logger = LoggerFactory.getLogger(EventListener.class);
         Class<T> clazz = (Class<T>) TypeResolver.resolveRawArgument(Consumer.class, consumer.getClass());
+        this.logger.info("Registering listener: {}", clazz.getSimpleName());
 
         Plugin plugin = MinecraftDiscord.getInstance();
-        plugin.getLogger().info("Registering listener: " + clazz.getSimpleName());
-
         plugin.getServer().getPluginManager().registerEvent(clazz, this, EventPriority.NORMAL,
                 ((listener, event) -> consumer.accept((clazz.cast(event)))), plugin);
     }

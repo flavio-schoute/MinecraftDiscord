@@ -18,40 +18,67 @@
 package io.github.jordieh.minecraftdiscord.discord;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
-import io.github.jordieh.minecraftdiscord.testing.Properties;
+import io.github.jordieh.minecraftdiscord.util.ConfigSection;
 import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.Plugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventSubscriber;
+import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.obj.ActivityType;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.StatusType;
 import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
+import java.util.Optional;
+
 public class ClientHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
 
     private static ClientHandler instance;
 
     @Getter private IDiscordClient client;
+    @Getter private IGuild guild;
+    private boolean disable;
 
     private ClientHandler() {
-        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
-        String token = configuration.getString("token");
+        logger.debug("Constructing ClientHandler");
+        MinecraftDiscord plugin = MinecraftDiscord.getInstance();
+        FileConfiguration configuration = plugin.getConfig();
+        String token = configuration.getString(ConfigSection.TOKEN.PATH);
 
-//        String token = Properties.getInstance().getProperty("token");
-
+        logger.trace("Starting ClientBuilder");
         ClientBuilder builder = new ClientBuilder();
         builder.withRecommendedShardCount();
         builder.withToken(token);
         builder.registerListener(this); // ReadyEvent
+
         try {
-            this.client = builder.login();
+            logger.debug("Trying to connect to Discord");
+            client = builder.login();
+            logger.debug("Successfully connected to Discord with {} listeners", 1);
         } catch (DiscordException e) {
-            e.printStackTrace();
+            if (e.getMessage().contains("401") && configuration.getBoolean(ConfigSection.FIRST_STARTUP.PATH)) {
+                logger.error("\n#############################################\n" +
+                        "# First startup error detected              #\n" +
+                        "# You seem to have a invalid bot token      #\n" +
+                        "# Please visit ... and change your token!   #\n" +
+                        "#############################################");
+                logger.trace("Updating startup path in config.yml");
+                configuration.set(ConfigSection.FIRST_STARTUP.PATH, false);
+                this.disable();
+            } else {
+                logger.warn("Error detected while attempting Discord connection", e);
+            }
         }
     }
 
@@ -62,6 +89,7 @@ public class ClientHandler {
     public void sendMessage(IChannel channel, String message) {
         RequestBuffer.request(() -> {
             try {
+                logger.trace("Attempting to send '{}' to {}", message, channel.getName());
                 channel.sendMessage(message);
             } catch (DiscordException | MissingPermissionsException e) {
                 e.printStackTrace();
@@ -69,74 +97,113 @@ public class ClientHandler {
         }).get();
     }
 
-    @EventSubscriber
-    public void onReadyEvent(ReadyEvent event) {
-        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
-        this.updatePresence(configuration);
-//        this.updatePresence();
+    public void sendMessage(IChannel channel, EmbedObject embed) {
+        RequestBuffer.request(() -> {
+            try {
+                logger.trace("Attempting to send an embed to {}", channel.getName());
+                channel.sendMessage(embed);
+            } catch (DiscordException | MissingPermissionsException e) {
+                e.printStackTrace();
+            }
+        }).get();
     }
 
-    @Deprecated
-    private void updatePresence() {
-        if (!Properties.getInstance().getProperty("enabled").equals("TRUE")) {
-//            this.logger.debug("Discord presence is disabled");
+    public void disable() {
+        if (client == null || !client.isReady()) {
+            logger.trace("Waiting for ReadyEvent to call ClientHandler#disable();");
+            disable = true;
             return;
         }
 
-        StatusType status;
-        try {
-            status = StatusType.valueOf(Properties.getInstance().getProperty("status"));
-        } catch (IllegalArgumentException e) {
-//            this.logger.warn("Invalid status type '%s' detected in config", Properties.getInstance().getProperty("status"));
-            status = StatusType.ONLINE;
+        if (guild != null) {
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.withDescription("<:switchoff:429572741075828738> The server has been disabled");
+            builder.withColor(0xFF5555);
+            findConfigChannel(ConfigSection.SHUTDOWN_CHANNEL)
+                    .ifPresent(channel -> sendMessage(channel, builder.build()));
+        }
+        logger.info("Disabling plugin: Read previous output for more information");
+        client.logout();
+
+        logger.debug("Disabling plugin via ClientHandler#disable();");
+        Plugin plugin = MinecraftDiscord.getInstance();
+        plugin.getServer().getPluginManager().disablePlugin(MinecraftDiscord.getInstance());
+    }
+
+    public Optional<IChannel> findConfigChannel(ConfigSection channel) {
+        String path = channel.PATH;
+        logger.trace("Attempting to find channel in guild {} using config section {}", this.guild.getLongID(), path);
+        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
+        long configurationLong = configuration.getLong(path);
+        IChannel iChannel = this.guild.getChannelByID(configurationLong);
+        return Optional.ofNullable(iChannel);
+    }
+
+    @EventSubscriber
+    public void onReadyEvent(ReadyEvent event) {
+        logger.debug("ReadyEvent has been called");
+        logger.trace("Retrieving guild id from config.yml");
+        long configurationLong = MinecraftDiscord.getInstance().getConfig().getLong(ConfigSection.GUILD.PATH);
+        guild = client.getGuildByID(configurationLong);
+        if (guild == null) {
+            logger.warn("Detected an invalid guild token: {}", configurationLong);
+            disable();
         }
 
-        ActivityType activity;
-        try {
-            activity = ActivityType.valueOf(Properties.getInstance().getProperty("activity"));
-        } catch (IllegalArgumentException e) {
-//            this.logger.warn("Invalid activity type '%s' detected in config", Properties.getInstance().getProperty("activity"));
-            activity = ActivityType.PLAYING;
+        client.getGuilds().forEach(guild -> {
+            logger.trace("Found guild with id {} and functional name {}", guild.getLongID(), guild.getName());
+        });
+        if (this.disable) {
+            this.disable();
+            return;
         }
 
-        if (activity == ActivityType.STREAMING) {
-//            this.logger.warn("Detected usage of ActivityType.STREAMING, this activity type is not supported!");
-            activity = ActivityType.PLAYING;
-        }
+        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
+        this.updatePresence(configuration);
 
-        String text = Properties.getInstance().getProperty("text");
-        this.client.changePresence(status, activity, text);
+        this.findConfigChannel(ConfigSection.SHUTDOWN_CHANNEL).ifPresent(channel -> {
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.withDescription("<:switchon:429572726219341824> The server has been turned on");
+            builder.withColor(0x00AA00);
+            this.sendMessage(channel, builder.build());
+        });
     }
 
     private void updatePresence(FileConfiguration configuration) {
-        if (!configuration.getBoolean("presence.enabled")) {
+        logger.trace("Attempting to update Discord presence");
+        if (!configuration.getBoolean(ConfigSection.PRESENCE_ENABLED.PATH)) {
+            logger.debug("Discord presence is disabled in config.yml");
             return;
         }
+        String state;
 
         StatusType status;
+        state = configuration.getString(ConfigSection.PRESENCE_STATUS.PATH).toUpperCase();
         try {
-            status = StatusType.valueOf(configuration.getString("presence.type-status").toUpperCase());
+            status = StatusType.valueOf(state);
         } catch (IllegalArgumentException e) {
-            // @TODO Send message to console
+            logger.warn("Invalid presence status type detected in config.yml ({}) using ONLINE", state);
             status = StatusType.ONLINE;
         }
 
         ActivityType activity;
+        state = configuration.getString(ConfigSection.PRESENCE_ACTIVITY.PATH).toUpperCase();
         try {
-            activity = ActivityType.valueOf(configuration.getString("presence.type-activity").toUpperCase());
+            activity = ActivityType.valueOf(state);
         } catch (IllegalArgumentException e) {
-            // @TODO Send message to console
+            logger.warn("Invalid presence activity type detected in config.yml ({}) using PLAYING", state);
             activity = ActivityType.PLAYING;
         }
 
         // Streaming uses a separate method that we will not be allowing
         if (activity == ActivityType.STREAMING) {
-            // @TODO Send message to console
+            logger.warn("Detected usage of activity type STREAMING in config.yml, this is unsupported, using PLAYING");
             activity = ActivityType.PLAYING;
         }
 
-        String text = configuration.getString("presence.text");
+        String text = configuration.getString(ConfigSection.PRESENCE_TEXT.PATH);
 
+        logger.debug("Attempting to change presence [{}] [{}] [{}]", status.name(), activity.name(), text);
         this.client.changePresence(status, activity, text);
     }
 }

@@ -15,25 +15,12 @@
  *     along with MinecraftDiscord.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.github.jordieh.minecraftdiscord.metrics;
+package io.github.jordieh.minecraftdiscord.util;
 
-import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
-import org.bstats.bukkit.Metrics;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public enum MessageType {
 
-public class MetricsHandler {
+    MESSAGE,
+    WEBHOOK,
+    EMBED;
 
-    private final Logger logger = LoggerFactory.getLogger(MetricsHandler.class);
-
-    private static MetricsHandler instance;
-
-    private MetricsHandler() {
-        logger.debug("Constructing MetricsHandler");
-        Metrics metrics = new Metrics(MinecraftDiscord.getInstance());
-    }
-
-    public static MetricsHandler getInstance() {
-        return instance == null ? instance = new MetricsHandler() : instance;
-    }
 }
