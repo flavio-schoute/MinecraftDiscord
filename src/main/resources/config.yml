@@ -11,10 +11,24 @@ presence:
   text: 'Linking servers...'
 
 # Message format type in Discord, see ... for more information
-output-type: webhook
+message-format:
+  type: webhook
+  render: 'https://visage.surgeplay.com/head/128/#uuid'
+  discord: '#USER: #MESSAGE'
 
 console-channel: 0
 shutdown-channel: 0
+
+account-linking:
+  enabled: true
+  online-role:
+    enabled: false
+    role: 0
+
+linked-worlds:
+  world: 0
+  world_nether: 0
+  world_the_end: 0
 
 # Please don't touch these options
 first-startup: true

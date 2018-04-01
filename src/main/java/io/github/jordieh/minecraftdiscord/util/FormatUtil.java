@@ -17,10 +17,15 @@
 
 package io.github.jordieh.minecraftdiscord.util;
 
-public enum MessageType {
+import org.bukkit.ChatColor;
 
-    MESSAGE,
-    WEBHOOK,
-    EMBED
+public final class FormatUtil {
 
+    public static String stripColors(String s) {
+        return s.replaceAll("(&[\\da-fA-Fk-oK-OrR]|\\s{4,})", "");
+    }
+
+    public static String formatColors(String s) {
+        return ChatColor.translateAlternateColorCodes('&', s);
+    }
 }

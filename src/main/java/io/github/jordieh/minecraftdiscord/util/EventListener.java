@@ -17,28 +17,24 @@
 
 package io.github.jordieh.minecraftdiscord.util;
 
-import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
-import lombok.NonNull;
-import net.jodah.typetools.TypeResolver;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+@Deprecated
+public class EventListener {
 
-import java.util.function.Consumer;
+//    final Logger logger = LoggerFactory.getLogger(EventListener.class);
+//
+//    public EventListener(Class<? extends Event> clazz) {
+//        this.logger.info("Registering listener: {}", clazz.getSimpleName());
+//
+//        Plugin plugin = MinecraftDiscord.getInstance();
+//        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+//    }
 
-public class EventListener<T extends Event> implements Listener {
-
-    final Logger logger = LoggerFactory.getLogger(EventListener.class);
-
-    public EventListener(@NonNull Consumer<T> consumer) {
-        Class<T> clazz = (Class<T>) TypeResolver.resolveRawArgument(Consumer.class, consumer.getClass());
-        this.logger.info("Registering listener: {}", clazz.getSimpleName());
-
-        Plugin plugin = MinecraftDiscord.getInstance();
-        plugin.getServer().getPluginManager().registerEvent(clazz, this, EventPriority.NORMAL,
-                ((listener, event) -> consumer.accept((clazz.cast(event)))), plugin);
-    }
+//    public EventListener(@NonNull Consumer<T> consumer) {
+//        Class<T> clazz = (Class<T>) TypeResolver.resolveRawArgument(Consumer.class, consumer.getClass());
+//        this.logger.info("Registering listener: {}", clazz.getSimpleName());
+//
+//        Plugin plugin = MinecraftDiscord.getInstance();
+//        plugin.getServer().getPluginManager().registerEvent(clazz, this, EventPriority.NORMAL,
+//                ((listener, event) -> consumer.accept((clazz.cast(event)))), plugin);
+//    }
 }

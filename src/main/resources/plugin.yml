@@ -4,3 +4,11 @@ main: ${project.groupId}.${project.artifactId}
 authors: [Jordieh]
 description: ${project.description}
 website: ${project.url}
+
+commands:
+  link:
+    usage: /<command>
+
+permissions:
+  minecraftdiscord.connect:
+    description: link

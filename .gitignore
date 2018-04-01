@@ -50,4 +50,3 @@ fabric.properties
 config.properties
 testing/
 log4j.properties
-/testing

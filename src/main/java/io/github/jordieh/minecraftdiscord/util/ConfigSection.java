@@ -18,28 +18,31 @@
 package io.github.jordieh.minecraftdiscord.util;
 
 /**
- * Utility enum for exact config.yml path selection
+ * Utility class for exact config.yml path selection
  */
-public enum ConfigSection {
+public class ConfigSection {
 
-    TOKEN("token"),
-    GUILD("guild"),
+    public static final String TOKEN = "token";
+    public static final String GUILD = "guild";
 
-    PRESENCE_ENABLED("presence.enabled"),
-    PRESENCE_STATUS("presence.type-status"),
-    PRESENCE_ACTIVITY("presence.type-activity"),
-    PRESENCE_TEXT("presence.text"),
+    public static final String PRESENCE_ENABLED = "presence.enabled";
+    public static final String PRESENCE_STATUS = "presence.type-status";
+    public static final String PRESENCE_ACTIVITY = "presence.type-activity";
+    public static final String PRESENCE_TEXT = "presence.text";
 
-    OUTPUT_TYPE("output-type"),
+    public static final String OUTPUT_TYPE = "message-format.type";
+    public static final String RENDER_LINK = "message-format.render";
+    public static final String DISCORD_FORMAT = "message-format.discord";
 
-    CONSOLE_CHANNEL("console-channel"),
-    SHUTDOWN_CHANNEL("shutdown-channel"),
+    public static final String CONSOLE_CHANNEL = "console-channel";
+    public static final String SHUTDOWN_CHANNEL = "shutdown-channel";
 
-    FIRST_STARTUP("first-startup");
+    public static final String LINKING_ENABLED = "account-linking.enabled";
+    public static final String ROLE_ENABLED = "account-linking.online-role.enabled";
+    public static final String ROLE_UID = "account-linking.online-role.role";
 
-    public final String PATH;
+    public static final String LINKED_WORLDS = "linked-worlds";
 
-    ConfigSection(String PATH) {
-        this.PATH = PATH;
-    }
+    public static final String FIRST_STARTUP = "first-startup";
+
 }

@@ -17,23 +17,25 @@
 
 package io.github.jordieh.minecraftdiscord;
 
+import io.github.jordieh.minecraftdiscord.command.LinkCommand;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
-import io.github.jordieh.minecraftdiscord.listeners.AsyncPlayerChatListener;
+import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
+import io.github.jordieh.minecraftdiscord.discord.WebhookHandler;
+import io.github.jordieh.minecraftdiscord.listeners.minecraft.AsyncPlayerChatListener;
+import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerJoinListener;
+import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerQuitListener;
 import io.github.jordieh.minecraftdiscord.metrics.MetricsHandler;
+import io.github.jordieh.minecraftdiscord.world.WorldHandler;
 import lombok.Getter;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.PatternLayout;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 public final class MinecraftDiscord extends JavaPlugin {
 
@@ -57,21 +59,24 @@ public final class MinecraftDiscord extends JavaPlugin {
 
         instance = this;
 
-        logger.trace("Implementing default config configuration");
+        logger.debug("Saving default configuration");
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
 
-        Map<String, Long> longMap = new HashMap<>();
-        World world = Bukkit.getWorld("world");
-        longMap.put(world.getName(), 429073131869569044L);
-        longMap.put("nether", 429073131869544L);
-        getConfig().set("linked-worlds", longMap);
-        saveConfig();
-
-        new AsyncPlayerChatListener();
-
-        MetricsHandler.getInstance();
+        logger.debug("Registering handlers");
         ClientHandler.getInstance();
+        LinkHandler.getInstance();
+        WebhookHandler.getInstance();
+        MetricsHandler.getInstance();
+        WorldHandler.getInstance();
+
+        logger.debug("Registering Bukkit events");
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
+        getServer().getPluginManager().registerEvents(new AsyncPlayerChatListener(), this);
+
+        logger.debug("Registering commands");
+        getCommand("link").setExecutor(new LinkCommand());
 
         startup = ((System.currentTimeMillis() - startup)) / 1000.0d;
         NumberFormat format = new DecimalFormat("#0.00");
@@ -82,7 +87,6 @@ public final class MinecraftDiscord extends JavaPlugin {
     @Override
     public void onDisable() {
         logger.debug("Plugin disable procedure has been engaged");
-        saveConfig();
         ClientHandler.getInstance().disable();
     }
 
