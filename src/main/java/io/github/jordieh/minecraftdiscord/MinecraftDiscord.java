@@ -25,6 +25,7 @@ import io.github.jordieh.minecraftdiscord.listeners.minecraft.AsyncPlayerChatLis
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerJoinListener;
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerQuitListener;
 import io.github.jordieh.minecraftdiscord.metrics.MetricsHandler;
+import io.github.jordieh.minecraftdiscord.util.LangUtil;
 import io.github.jordieh.minecraftdiscord.world.WorldHandler;
 import lombok.Getter;
 import org.apache.log4j.ConsoleAppender;
@@ -34,6 +35,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -63,7 +65,11 @@ public final class MinecraftDiscord extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
 
+        saveResource("language/messages_en.properties", false);
+        saveResource("language/messages.properties", false);
+
         logger.debug("Registering handlers");
+        LangUtil.getInstance();
         ClientHandler.getInstance();
         LinkHandler.getInstance();
         WebhookHandler.getInstance();
@@ -88,6 +94,43 @@ public final class MinecraftDiscord extends JavaPlugin {
     public void onDisable() {
         logger.debug("Plugin disable procedure has been engaged");
         ClientHandler.getInstance().disable();
+    }
+
+    public void saveResource(String resourcePath, boolean replace) {
+        if (resourcePath == null || resourcePath.equals("")) {
+            throw new IllegalArgumentException("ResourcePath cannot be null or empty");
+        }
+
+        resourcePath = resourcePath.replace('\\', '/');
+        InputStream in = getResource(resourcePath);
+        if (in == null) {
+            throw new IllegalArgumentException("The embedded resource '" + resourcePath + "' cannot be found in " + "?");
+        }
+
+        File outFile = new File(getDataFolder(), resourcePath);
+        int lastIndex = resourcePath.lastIndexOf('/');
+        File outDir = new File(getDataFolder(), resourcePath.substring(0, lastIndex >= 0 ? lastIndex : 0));
+
+        if (!outDir.exists()) {
+            outDir.mkdirs();
+        }
+
+        try {
+            if (!outFile.exists() || replace) {
+                OutputStream out = new FileOutputStream(outFile);
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                out.close();
+                in.close();
+            } else {
+                logger.info("Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
+            }
+        } catch (IOException ex) {
+            logger.info("Could not save " + outFile.getName() + " to " + outFile, ex);
+        }
     }
 
 }

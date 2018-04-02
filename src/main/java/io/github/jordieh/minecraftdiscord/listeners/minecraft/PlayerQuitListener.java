@@ -39,28 +39,23 @@ public class PlayerQuitListener implements Listener {
         Plugin plugin = MinecraftDiscord.getInstance();
         FileConfiguration configuration = plugin.getConfig();
 
-        System.out.println(" >>>>>>>>>>>>>>] Quit");
         if (!configuration.getBoolean(ConfigSection.ROLE_ENABLED)) {
-            System.out.println("Online player roles are disabled");
             return;
         }
 
         UUID uuid = event.getPlayer().getUniqueId();
         if (!LinkHandler.getInstance().isLinked(uuid)) {
-            System.out.println("Player " + uuid.toString() + " is not linked");
             return;
         }
 
         IRole role = ClientHandler.getInstance().getGuild().getRoleByID(configuration.getLong(ConfigSection.ROLE_UID));
         if (role ==null) {
-            System.out.println("Cannot find role with id " + configuration.getLong(ConfigSection.ROLE_UID));
             return;
         }
 
         long temp = LinkHandler.getInstance().getLinkedUser(uuid);
         IUser user = ClientHandler.getInstance().getGuild().getUserByID(temp);
         if (user == null) {
-            System.out.println("Cannot find user with id " + temp);
             return;
         }
 

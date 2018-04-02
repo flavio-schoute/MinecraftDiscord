@@ -25,7 +25,7 @@ import io.github.jordieh.minecraftdiscord.util.EmbedUtil;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
 import io.github.jordieh.minecraftdiscord.world.WorldHandler;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
@@ -34,6 +34,8 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.UUID;
+
+import static io.github.jordieh.minecraftdiscord.util.LangUtil.tr;
 
 public class MessageReceivedEventHandler implements IListener<MessageReceivedEvent> {
 
@@ -50,31 +52,32 @@ public class MessageReceivedEventHandler implements IListener<MessageReceivedEve
 
         if (content.startsWith("/link")) {
             if (!content.matches("/link\\s*\\d{6}")) {
-                String desc = ":tickets: Invalid usage: Please use `/link <code>`";
+                String desc = tr("discord.link.usage");
                 ClientHandler.getInstance().deleteMessage(message);
                 ClientHandler.getInstance().sendMessage(channel, EmbedUtil.createEmbed(desc, 0xFF5555));
                 return;
             }
             int code = Integer.parseInt(content.replaceAll("/link\\s+", ""));
             if (LinkHandler.getInstance().linkAccount(author, code)) {
-                String desc = ":1234: Invalid code, please execute the `/link` command ingame!";
+                String desc = tr("discord.link.invalid");
                 ClientHandler.getInstance().deleteMessage(message);
                 ClientHandler.getInstance().sendMessage(channel, EmbedUtil.createEmbed(desc, 0xFF5555));
                 return;
             }
 
             UUID uuid = LinkHandler.getInstance().getLinkMap().get(author.getLongID());
+            OfflinePlayer temp = Bukkit.getOfflinePlayer(uuid);
             String url = MinecraftDiscord.getInstance().getConfig().getString(ConfigSection.RENDER_LINK)
                     .replace("#uuid", uuid.toString());
             ClientHandler.getInstance().deleteMessage(message);
             ClientHandler.getInstance().sendMessage(channel,
-                    EmbedUtil.createEmbed("Successfully linked your Minecraft account to Discord",
-                            author.getColorForGuild(message.getGuild()), uuid.toString(), url));
-            Player player = Bukkit.getPlayer(uuid);
+                    EmbedUtil.createEmbed(tr("discord.link.success"),
+                            author.getColorForGuild(message.getGuild()), tr("discord.link.success.title",
+                                    uuid.toString(), temp.getName()), url));
+            Player player = temp.getPlayer();
             if (player != null) {
-                String format = "%sYou have successfully linked your Minecraft account with Discord! (%s%s%s)";
-                player.sendMessage(String.format(format, ChatColor.BLUE, ChatColor.AQUA,
-                        (author.getName() + author.getDiscriminator()), ChatColor.BLUE));
+                player.sendMessage(tr("discord.link.success.minecraft",
+                        (author.getName() + "#" + author.getDiscriminator())));
             }
             return;
         }
@@ -86,7 +89,7 @@ public class MessageReceivedEventHandler implements IListener<MessageReceivedEve
         String messageA = FormatUtil.stripColors(event.getMessage().getContent());
         int maxLength = (messageA.length() < 257 )? messageA.length() : 257;
         if (maxLength == 257) {
-            message.reply("Your message was to long, it has been converted to the following:",
+            message.reply(tr("discord.message.length"),
                     EmbedUtil.createEmbed(messageA));
         }
         messageA = messageA.substring(0, maxLength);

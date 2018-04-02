@@ -18,29 +18,29 @@
 package io.github.jordieh.minecraftdiscord.command;
 
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import static io.github.jordieh.minecraftdiscord.util.LangUtil.tr;
 
 public class LinkCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("Only players can link their Discord account");
+            sender.sendMessage(tr("command.link.console"));
             return true;
         }
 
         if (!sender.hasPermission("minecraftdiscord.connect")) {
-            sender.sendMessage(ChatColor.BLUE + "You currently are not allowed to link your account");
+            sender.sendMessage(tr("command.link.nopermission"));
             return true;
         }
 
         int code = LinkHandler.getInstance().generateCode(((Player) sender).getUniqueId());
-        String format = "%sYour authentication code is %s%s%s, you can link your account by typing '/link' in Discord";
-        sender.sendMessage(String.format(format, ChatColor.BLUE, ChatColor.AQUA, code, ChatColor.BLUE, code));
+        sender.sendMessage(tr("command.link.success", code));
         return true;
     }
 }

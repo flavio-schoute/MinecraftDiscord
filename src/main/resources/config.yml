@@ -19,6 +19,8 @@ message-format:
 console-channel: 0
 shutdown-channel: 0
 
+locale: auto
+
 account-linking:
   enabled: true
   online-role:
