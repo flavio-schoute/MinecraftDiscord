@@ -174,6 +174,8 @@ public class ClientHandler implements IListener<ReadyEvent> {
     @Override
     public void handle(ReadyEvent event) {
         logger.debug("ReadyEvent has been called");
+
+
         logger.trace("Retrieving guild id from config.yml");
         long configurationLong = MinecraftDiscord.getInstance().getConfig().getLong(ConfigSection.GUILD);
         guild = client.getGuildByID(configurationLong);
@@ -186,6 +188,8 @@ public class ClientHandler implements IListener<ReadyEvent> {
             this.disable();
             return;
         }
+
+        MinecraftDiscord.getInstance().finishStartup();
 
         FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
         this.updatePresence(configuration);

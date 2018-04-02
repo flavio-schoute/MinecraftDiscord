@@ -18,8 +18,10 @@
 package io.github.jordieh.minecraftdiscord;
 
 import io.github.jordieh.minecraftdiscord.command.LinkCommand;
+import io.github.jordieh.minecraftdiscord.command.UnlinkCommand;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
+import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
 import io.github.jordieh.minecraftdiscord.discord.WebhookHandler;
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.AsyncPlayerChatListener;
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerJoinListener;
@@ -54,9 +56,11 @@ public final class MinecraftDiscord extends JavaPlugin {
 
     @Getter private static MinecraftDiscord instance;
 
+    private double startup;
+
     @Override
     public void onEnable() {
-        double startup = System.currentTimeMillis();
+        startup = System.currentTimeMillis();
         System.out.println("============== [MinecraftDiscord] ==============");
 
         instance = this;
@@ -69,12 +73,34 @@ public final class MinecraftDiscord extends JavaPlugin {
         saveResource("language/messages.properties", false);
 
         logger.debug("Registering handlers");
-        LangUtil.getInstance();
         ClientHandler.getInstance();
+        logger.info("Waiting for the bot to be ready");
+    }
+
+    @Override
+    public void onDisable() {
+        RoleHandler.getInstance().clearRoleEnabledUsers(false);
+        logger.debug("Plugin disable procedure has been engaged");
+        LinkHandler.getInstance().saveResources();
+        ClientHandler.getInstance().disable();
+    }
+
+    /**
+     * Make sure the bot has started up before doing anything special
+     */
+    public void finishStartup() {
+        if (startup == -1) {
+            return;
+        }
+
+        LangUtil.getInstance();
         LinkHandler.getInstance();
         WebhookHandler.getInstance();
         MetricsHandler.getInstance();
         WorldHandler.getInstance();
+
+        RoleHandler.getInstance().clearRoleEnabledUsers(false);
+        RoleHandler.getInstance().giveLinkedUsersOnlineRole();
 
         logger.debug("Registering Bukkit events");
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
@@ -83,17 +109,14 @@ public final class MinecraftDiscord extends JavaPlugin {
 
         logger.debug("Registering commands");
         getCommand("link").setExecutor(new LinkCommand());
+        getCommand("unlink").setExecutor(new UnlinkCommand());
 
         startup = ((System.currentTimeMillis() - startup)) / 1000.0d;
         NumberFormat format = new DecimalFormat("#0.00");
         logger.info("The plugin has been enabled in {} seconds", format.format(startup));
         System.out.println("============== [MinecraftDiscord] ==============");
-    }
 
-    @Override
-    public void onDisable() {
-        logger.debug("Plugin disable procedure has been engaged");
-        ClientHandler.getInstance().disable();
+        startup = -1;
     }
 
     public void saveResource(String resourcePath, boolean replace) {
@@ -126,7 +149,7 @@ public final class MinecraftDiscord extends JavaPlugin {
                 out.close();
                 in.close();
             } else {
-                logger.info("Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
+//                logger.info("Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
             }
         } catch (IOException ex) {
             logger.info("Could not save " + outFile.getName() + " to " + outFile, ex);

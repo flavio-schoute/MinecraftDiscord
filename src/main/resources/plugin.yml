@@ -7,8 +7,13 @@ website: ${project.url}
 
 commands:
   link:
+    permission: minecraftdiscord.connect
+    usage: /<command>
+  unlink:
+    usage: /<command>
+  discord:
     usage: /<command>
 
 permissions:
   minecraftdiscord.connect:
-    description: link
+    description: Use the /link command

@@ -15,24 +15,21 @@
  *     along with MinecraftDiscord.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.github.jordieh.minecraftdiscord.util;
+package io.github.jordieh.minecraftdiscord.command;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
-import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 
-public final class FormatUtil {
+import static io.github.jordieh.minecraftdiscord.util.LangUtil.tr;
 
-    public static String stripColors(String s) {
-        return s.replaceAll("(&[\\da-fA-Fk-oK-OrR]|[\\n\\r]*+)", "")
-                .replaceAll("\\s{4,}", " ");
-    }
+public class DiscordCommand implements CommandExecutor {
 
-    public static String formatColors(String s) {
-        return ChatColor.translateAlternateColorCodes('&', s);
-    }
-
-    public static String avatarUrl(String uuid) {
-        return MinecraftDiscord.getInstance().getConfig().getString(ConfigSection.RENDER_LINK)
-                .replace("#uuid", uuid);
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        sender.sendMessage(tr("command.discord.message",
+                MinecraftDiscord.getInstance().getConfig().getString("url")));
+        return true;
     }
 }

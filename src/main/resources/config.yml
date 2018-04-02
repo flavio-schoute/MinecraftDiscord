@@ -3,6 +3,8 @@ token: XXXXXXXXXXXXXXXXXXXXXXXX.XXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXX
 # GuildID, see ... for information on how to retrieve this!
 guild: 0
 
+url: https://discord.gg/...
+
 # Game presence on Discord, see ... for more information
 presence:
   enabled: false
@@ -12,17 +14,18 @@ presence:
 
 # Message format type in Discord, see ... for more information
 message-format:
-  type: webhook
+  type: embed
   render: 'https://visage.surgeplay.com/head/128/#uuid'
-  discord: '#USER: #MESSAGE'
+  discord: '&7[&d#CHANNEL&7] #USER: #MESSAGE'
 
-console-channel: 0
+#console-channel: 0
 shutdown-channel: 0
 
-locale: auto
+#locale: auto
 
 account-linking:
   enabled: true
+  needed: false
   online-role:
     enabled: false
     role: 0

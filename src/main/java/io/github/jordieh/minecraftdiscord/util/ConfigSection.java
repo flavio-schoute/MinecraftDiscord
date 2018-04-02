@@ -38,6 +38,7 @@ public class ConfigSection {
     public static final String SHUTDOWN_CHANNEL = "shutdown-channel";
 
     public static final String LINKING_ENABLED = "account-linking.enabled";
+    public static final String LINKING_NEEDED = "account-linking.needed";
     public static final String ROLE_ENABLED = "account-linking.online-role.enabled";
     public static final String ROLE_UID = "account-linking.online-role.role";
 

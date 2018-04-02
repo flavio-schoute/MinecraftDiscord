@@ -19,6 +19,7 @@ package io.github.jordieh.minecraftdiscord.metrics;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,33 @@ public class MetricsHandler {
     private MetricsHandler() {
         logger.debug("Constructing MetricsHandler");
         Metrics metrics = new Metrics(MinecraftDiscord.getInstance());
+
+        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
+
+        metrics.addCustomChart(new Metrics.SimplePie("message_type", () -> {
+            return configuration.getString("message-format.type".toLowerCase(), "embed");
+        }));
+
+        metrics.addCustomChart(new Metrics.SimplePie("account_linking", () -> {
+            return configuration.getString("account-linking.enabled".toLowerCase(), "true");
+        }));
+
+        metrics.addCustomChart(new Metrics.SimplePie("playing_role", () -> {
+            return configuration.getString("account-linking.online-role.enabled".toLowerCase(), "false");
+        }));
+
+        metrics.addCustomChart(new Metrics.SimplePie("presence_enabled", () -> {
+            return configuration.getString("presence.enabled".toLowerCase(), "webhook");
+        }));
+
+        metrics.addCustomChart(new Metrics.SimplePie("presence_status", () -> {
+            return configuration.getString("presence.type-status".toLowerCase(), "online");
+        }));
+
+        metrics.addCustomChart(new Metrics.SimplePie("presence_activity", () -> {
+            return configuration.getString("presence.type-activity".toLowerCase(), "playing");
+        }));
+
     }
 
     public static MetricsHandler getInstance() {

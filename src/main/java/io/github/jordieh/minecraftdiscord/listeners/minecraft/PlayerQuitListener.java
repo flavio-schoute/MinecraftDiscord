@@ -17,48 +17,16 @@
 
 package io.github.jordieh.minecraftdiscord.listeners.minecraft;
 
-import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
-import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
-import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
-import io.github.jordieh.minecraftdiscord.util.ConfigSection;
-import org.bukkit.configuration.file.FileConfiguration;
+import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.Plugin;
-import sx.blah.discord.handle.obj.IRole;
-import sx.blah.discord.handle.obj.IUser;
-
-import java.util.UUID;
 
 public class PlayerQuitListener implements Listener {
 
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        Plugin plugin = MinecraftDiscord.getInstance();
-        FileConfiguration configuration = plugin.getConfig();
-
-        if (!configuration.getBoolean(ConfigSection.ROLE_ENABLED)) {
-            return;
-        }
-
-        UUID uuid = event.getPlayer().getUniqueId();
-        if (!LinkHandler.getInstance().isLinked(uuid)) {
-            return;
-        }
-
-        IRole role = ClientHandler.getInstance().getGuild().getRoleByID(configuration.getLong(ConfigSection.ROLE_UID));
-        if (role ==null) {
-            return;
-        }
-
-        long temp = LinkHandler.getInstance().getLinkedUser(uuid);
-        IUser user = ClientHandler.getInstance().getGuild().getUserByID(temp);
-        if (user == null) {
-            return;
-        }
-
-        ClientHandler.getInstance().removeRole(role, user);
+        RoleHandler.getInstance().removeOnlineRole(event.getPlayer().getUniqueId());
     }
 }

@@ -41,6 +41,9 @@ public class WebhookHandler {
 
     private static WebhookHandler instance;
 
+    private int remainingRequests;
+    private int resetTime;
+
     private WebhookHandler() {
     }
 
@@ -62,6 +65,7 @@ public class WebhookHandler {
         return ClientHandler.getInstance().getGuild().getChannelsByName(world.getName()).get(0).createWebhook(name);
     }
 
+    // @TODO: Handle rate limits https://discordapp.com/developers/docs/topics/rate-limits
     public void sendWebhook(IWebhook webhook, String username, String content, String avatarUrl) {
         String uri = "https://discordapp.com/api/webhooks/" + webhook.getLongID() + "/" + webhook.getToken();
         logger.trace("Trying to open POST request to {}", "https://discordapp.com/api/webhooks/");

@@ -11,7 +11,7 @@
 
     <name>MinecraftDiscord</name>
     <description>A Bukkit plugin that allows for the synchronisation of messages and groups with Discord</description>
-    <url>jordieh.github.io/minecraftdiscord</url>
+    <url>https://github.com/Jordieh/MinecraftDiscord</url>
 
     <issueManagement>
         <system>GitHub</system>
