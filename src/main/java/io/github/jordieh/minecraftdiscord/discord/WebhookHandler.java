@@ -54,7 +54,7 @@ public class WebhookHandler {
     public IWebhook getWebhook(World world) {
         logger.trace("Attempting to get a webhook for {}", world.getName());
         String target = "MinecraftDiscord [" + world.getName() + "]";
-        return ClientHandler.getInstance().getGuild().getWebhooks().stream()
+        return ClientHandler.getInstance().getClient().getGuildByID(429002537673293835L).getWebhooks().stream()
                 .filter(webhook -> webhook.getDefaultName().equals(target))
                 .findFirst().orElseGet(() -> createWebhook(world));
     }
@@ -62,7 +62,7 @@ public class WebhookHandler {
     private IWebhook createWebhook(World world) {
         logger.trace("Attempting to create a webhook for {}", world.getName());
         String name = "MinecraftDiscord [" + world.getName() + "]";
-        return ClientHandler.getInstance().getGuild().getChannelsByName(world.getName()).get(0).createWebhook(name);
+        return ClientHandler.getInstance().getClient().getGuildByID(429002537673293835L).getChannelsByName(world.getName()).get(0).createWebhook(name);
     }
 
     // @TODO: Handle rate limits https://discordapp.com/developers/docs/topics/rate-limits

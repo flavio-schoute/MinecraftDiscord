@@ -18,8 +18,8 @@
 package io.github.jordieh.minecraftdiscord.metrics;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
+import lombok.NonNull;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,39 +29,27 @@ public class MetricsHandler {
 
     private static MetricsHandler instance;
 
+    private Metrics metrics;
+
     private MetricsHandler() {
         logger.debug("Constructing MetricsHandler");
-        Metrics metrics = new Metrics(MinecraftDiscord.getInstance());
+        metrics = new Metrics(MinecraftDiscord.getInstance());
 
-        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
-
-        metrics.addCustomChart(new Metrics.SimplePie("message_type", () -> {
-            return configuration.getString("message-format.type".toLowerCase(), "embed");
-        }));
-
-        metrics.addCustomChart(new Metrics.SimplePie("account_linking", () -> {
-            return configuration.getString("account-linking.enabled".toLowerCase(), "true");
-        }));
-
-        metrics.addCustomChart(new Metrics.SimplePie("playing_role", () -> {
-            return configuration.getString("account-linking.online-role.enabled".toLowerCase(), "false");
-        }));
-
-        metrics.addCustomChart(new Metrics.SimplePie("presence_enabled", () -> {
-            return configuration.getString("presence.enabled".toLowerCase(), "webhook");
-        }));
-
-        metrics.addCustomChart(new Metrics.SimplePie("presence_status", () -> {
-            return configuration.getString("presence.type-status".toLowerCase(), "online");
-        }));
-
-        metrics.addCustomChart(new Metrics.SimplePie("presence_activity", () -> {
-            return configuration.getString("presence.type-activity".toLowerCase(), "playing");
-        }));
+        registerSimplePie("message_type", "options.message-type", "embed");
+        registerSimplePie("account_linking", "options.linking-enabled", "true");
+        registerSimplePie("playing_role", "connection-role.enabled", "false");
+        registerSimplePie("presence_enabled", "presence.enabled", "false");
+        registerSimplePie("presence_status", "presence.status", "online");
+        registerSimplePie("presence_activity", "presence.activity", "playing");
 
     }
 
     public static MetricsHandler getInstance() {
         return instance == null ? instance = new MetricsHandler() : instance;
+    }
+
+    private void registerSimplePie(@NonNull String id, @NonNull String path, @NonNull String def) {
+        String s = MinecraftDiscord.getInstance().getConfig().getString(path).toLowerCase();
+        this.metrics.addCustomChart(new Metrics.SimplePie(id, () -> s));
     }
 }

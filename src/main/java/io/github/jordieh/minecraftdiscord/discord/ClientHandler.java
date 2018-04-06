@@ -19,7 +19,6 @@ package io.github.jordieh.minecraftdiscord.discord;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
 import io.github.jordieh.minecraftdiscord.listeners.discord.MessageReceivedEventHandler;
-import io.github.jordieh.minecraftdiscord.util.ConfigSection;
 import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -32,11 +31,8 @@ import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
-
-import java.util.Optional;
 
 public class ClientHandler implements IListener<ReadyEvent> {
 
@@ -45,14 +41,14 @@ public class ClientHandler implements IListener<ReadyEvent> {
     private static ClientHandler instance;
 
     @Getter private IDiscordClient client;
-    @Getter private IGuild guild;
+//    @Getter private IGuild guild;
     private boolean disable;
 
     private ClientHandler() {
         logger.debug("Constructing ClientHandler");
         MinecraftDiscord plugin = MinecraftDiscord.getInstance();
         FileConfiguration configuration = plugin.getConfig();
-        String token = configuration.getString(ConfigSection.TOKEN);
+        String token = configuration.getString("token");
 
         logger.trace("Starting ClientBuilder");
         ClientBuilder builder = new ClientBuilder();
@@ -66,15 +62,12 @@ public class ClientHandler implements IListener<ReadyEvent> {
             client = builder.login();
             logger.debug("Successfully connected to Discord with {} listeners", 1);
         } catch (DiscordException e) {
-            if (e.getMessage().contains("401") && configuration.getBoolean(ConfigSection.FIRST_STARTUP)) {
+            if (e.getMessage().contains("401")) {
                 logger.error("\n#############################################\n" +
                         "# First startup error detected              #\n" +
                         "# You seem to have a invalid bot token      #\n" +
                         "# Please visit ... and change your token!   #\n" +
                         "#############################################");
-                logger.trace("Updating startup path in config.yml");
-                configuration.set(ConfigSection.FIRST_STARTUP, false);
-                plugin.saveConfig();
                 this.disable();
             } else {
                 logger.warn("Error detected while attempting Discord connection", e);
@@ -148,13 +141,13 @@ public class ClientHandler implements IListener<ReadyEvent> {
             return;
         }
 
-        if (guild != null) {
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.withDescription(":closed_book: The server has been disabled");
-            builder.withColor(0xFF5555);
-            findConfigChannel(ConfigSection.SHUTDOWN_CHANNEL)
-                    .ifPresent(channel -> sendMessage(channel, builder.build()));
-        }
+//        if (guild != null) { TODO Fix this
+//            EmbedBuilder builder = new EmbedBuilder();
+//            builder.withDescription(":closed_book: The server has been disabled");
+//            builder.withColor(0xFF5555);
+//            findConfigChannel(ConfigSection.SHUTDOWN_CHANNEL)
+//                    .ifPresent(channel -> sendMessage(channel, builder.build()));
+//        }
         logger.info("Disabling plugin: Read previous output for more information");
         client.logout();
 
@@ -163,26 +156,18 @@ public class ClientHandler implements IListener<ReadyEvent> {
         plugin.getServer().getPluginManager().disablePlugin(MinecraftDiscord.getInstance());
     }
 
-    public Optional<IChannel> findConfigChannel(String path) {
-        logger.trace("Attempting to find channel in guild {} using config section {}", this.guild.getLongID(), path);
-        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
-        long configurationLong = configuration.getLong(path);
-        IChannel iChannel = this.guild.getChannelByID(configurationLong);
-        return Optional.ofNullable(iChannel);
-    }
+//    @Deprecated
+//    public Optional<IChannel> findConfigChannel(String path) {
+//        logger.trace("Attempting to find channel in guild {} using config section {}", this.guild.getLongID(), path);
+//        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
+//        long configurationLong = configuration.getLong(path);
+//        IChannel iChannel = this.guild.getChannelByID(configurationLong);
+//        return Optional.ofNullable(iChannel);
+//    }
 
     @Override
     public void handle(ReadyEvent event) {
         logger.debug("ReadyEvent has been called");
-
-
-        logger.trace("Retrieving guild id from config.yml");
-        long configurationLong = MinecraftDiscord.getInstance().getConfig().getLong(ConfigSection.GUILD);
-        guild = client.getGuildByID(configurationLong);
-        if (guild == null) {
-            logger.warn("Detected an invalid guild token: {}", configurationLong);
-            disable();
-        }
 
         if (this.disable) {
             this.disable();
@@ -194,24 +179,24 @@ public class ClientHandler implements IListener<ReadyEvent> {
         FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
         this.updatePresence(configuration);
 
-        this.findConfigChannel(ConfigSection.SHUTDOWN_CHANNEL).ifPresent(channel -> {
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.withDescription(":green_book: The server has been turned on");
-            builder.withColor(0x00AA00);
-            this.sendMessage(channel, builder.build());
-        });
+//        this.findConfigChannel(ConfigSection.SHUTDOWN_CHANNEL).ifPresent(channel -> { TODO Fix this
+//            EmbedBuilder builder = new EmbedBuilder();
+//            builder.withDescription(":green_book: The server has been turned on");
+//            builder.withColor(0x00AA00);
+//            this.sendMessage(channel, builder.build());
+//        });
     }
 
     private void updatePresence(FileConfiguration configuration) {
         logger.trace("Attempting to update Discord presence");
-        if (!configuration.getBoolean(ConfigSection.PRESENCE_ENABLED)) {
+        if (!configuration.getBoolean("presence.enabled")) {
             logger.debug("Discord presence is disabled in config.yml");
             return;
         }
         String state;
 
         StatusType status;
-        state = configuration.getString(ConfigSection.PRESENCE_STATUS).toUpperCase();
+        state = configuration.getString("presence.status").toUpperCase();
         try {
             status = StatusType.valueOf(state);
         } catch (IllegalArgumentException e) {
@@ -220,7 +205,7 @@ public class ClientHandler implements IListener<ReadyEvent> {
         }
 
         ActivityType activity;
-        state = configuration.getString(ConfigSection.PRESENCE_ACTIVITY).toUpperCase();
+        state = configuration.getString("presence.activity").toUpperCase();
         try {
             activity = ActivityType.valueOf(state);
         } catch (IllegalArgumentException e) {
@@ -234,7 +219,7 @@ public class ClientHandler implements IListener<ReadyEvent> {
             activity = ActivityType.PLAYING;
         }
 
-        String text = configuration.getString(ConfigSection.PRESENCE_TEXT);
+        String text = configuration.getString("presence.text");
 
         logger.debug("Attempting to change presence [{}] [{}] [{}]", status.name(), activity.name(), text);
         this.client.changePresence(status, activity, text);

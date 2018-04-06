@@ -19,55 +19,46 @@ package io.github.jordieh.minecraftdiscord.world;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
-import io.github.jordieh.minecraftdiscord.util.ConfigSection;
 import lombok.Getter;
-import org.bukkit.World;
+import lombok.NonNull;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IChannel;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class WorldHandler {
+public class ChannelHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(WorldHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(ChannelHandler.class);
 
-    private static WorldHandler instance;
+    private static ChannelHandler instance;
 
     @Getter private Map<String, Long> longMap;
 
-    private WorldHandler() {
+    private ChannelHandler() {
         Plugin plugin = MinecraftDiscord.getInstance();
         FileConfiguration configuration = plugin.getConfig();
 
-        longMap = new HashMap<>();
-
-        configuration.getConfigurationSection(ConfigSection.LINKED_WORLDS).getValues(false).forEach(((s, o) -> {
-            if (o instanceof Long) {
-                if (!((long) o <= 0L)) {
-                    longMap.put(s, (Long) o);
-                    logger.debug("Link between world {} and channel {} established", s, o);
-                }
-            } else {
-                logger.warn("Detected unregistered world in linked-worlds: {} linked to channel {}", s, o);
-            }
-        }));
+        longMap = configuration.getConfigurationSection("channels").getValues(false)
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue() instanceof Long)
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> (Long) e.getValue()));
     }
 
-    public static WorldHandler getInstance() {
-        return instance == null ? instance = new WorldHandler() : instance;
+    public static ChannelHandler getInstance() {
+        return instance == null ? instance = new ChannelHandler() : instance;
     }
 
-    public Optional<IChannel> getWorldChannel(World world) {
-        String name = world.getName();
+    public Optional<IChannel> getConnectedChannel(@NonNull String name) {
         if (!longMap.containsKey(name)) {
             return Optional.empty();
         }
-        return ClientHandler.getInstance().getGuild().getChannels().stream()
+        return ClientHandler.getInstance().getClient().getChannels().stream()
                 .filter(channel -> channel.getLongID() == longMap.get(name))
                 .findFirst();
     }

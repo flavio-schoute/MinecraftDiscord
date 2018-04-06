@@ -1,39 +1,48 @@
-# Bot token, retrieved from https://discordapp.com/developers/applications/me
-token: XXXXXXXXXXXXXXXXXXXXXXXX.XXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXX
-# GuildID, see ... for information on how to retrieve this!
-guild: 0
+# Please read the documentation at ...
+token: xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 url: https://discord.gg/...
 
-# Game presence on Discord, see ... for more information
+channels:
+  global: 0
+  status: 0
+  console: 0
+
+disabled-dependencies:
+  - MinecraftDiscord
+
 presence:
-  enabled: false
-  type-status: ONLINE
-  type-activity: PLAYING
-  text: 'Linking servers...'
-
-# Message format type in Discord, see ... for more information
-message-format:
-  type: embed
-  render: 'https://visage.surgeplay.com/head/128/#uuid'
-  discord: '&7[&d#CHANNEL&7] #USER: #MESSAGE'
-
-#console-channel: 0
-shutdown-channel: 0
-
-#locale: auto
-
-account-linking:
   enabled: true
-  needed: false
-  online-role:
-    enabled: false
-    role: 0
+  activity: playing
+  status: online
+  text: Minecraft
 
-linked-worlds:
-  world: 0
-  world_nether: 0
-  world_the_end: 0
+options:
+  disable-automated-users: true
+  require-linking: false
+  process-console: true
+  linking-enabled: true
+  truncation-size: 256
+  message-render: https://visage.surgeplay.com/head/128/<uuid>
+  message-type: embed
+  language: en
+  blocked-users:
+    - 0
 
-# Please don't touch these options
-first-startup: true
+connection-role:
+  enabled: false
+  unique: 0
+
+translated-expressions:
+  '&[0-9A-Fa-fK-Ok-oRr]': ""
+  '\s{4,}': " "
+
+command-execution:
+  "+ip": "play.example.com"
+  "+shop": "https://shop.example.com"
+
+role-synchronization:
+  synchronization-time: 300
+  disallow-unlinking: true
+  synchronizable-roles:
+    - 0

@@ -37,9 +37,8 @@ package io.github.jordieh.minecraftdiscord.listeners.minecraft;
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.discord.WebhookHandler;
-import io.github.jordieh.minecraftdiscord.util.ConfigSection;
 import io.github.jordieh.minecraftdiscord.util.MessageType;
-import io.github.jordieh.minecraftdiscord.world.WorldHandler;
+import io.github.jordieh.minecraftdiscord.world.ChannelHandler;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -60,18 +59,18 @@ public class AsyncPlayerChatListener implements Listener {
         FileConfiguration configuration = plugin.getConfig();
         MessageType messageType;
         try {
-            messageType = MessageType.valueOf(configuration.getString(ConfigSection.OUTPUT_TYPE).toUpperCase());
+            messageType = MessageType.valueOf(configuration.getString("options.message-type").toUpperCase());
         } catch (IllegalArgumentException e) {
             messageType = MessageType.MESSAGE;
         }
 
         // TODO Channels per world
         Player player = event.getPlayer();
-        if (!WorldHandler.getInstance().getLongMap().containsKey(event.getPlayer().getWorld().getName())) {
+        if (!ChannelHandler.getInstance().getLongMap().containsKey(event.getPlayer().getWorld().getName())) {
             return;
         }
 
-        Optional<IChannel> channelOptional = WorldHandler.getInstance().getWorldChannel(player.getWorld());
+        Optional<IChannel> channelOptional = ChannelHandler.getInstance().getConnectedChannel(player.getWorld().getName());
         if (!channelOptional.isPresent()) return;
 
         IChannel channel = channelOptional.get();
@@ -82,8 +81,8 @@ public class AsyncPlayerChatListener implements Listener {
                 break;
             }
             case EMBED: {
-                String avatarUrl = plugin.getConfig().getString(ConfigSection.RENDER_LINK)
-                        .replace("#uuid", player.getUniqueId().toString());
+                String avatarUrl = plugin.getConfig().getString("options.message-render")
+                        .replace("<uuid>", player.getUniqueId().toString());
 
                 EmbedBuilder builder = new EmbedBuilder();
                 builder.withDescription(event.getMessage());
@@ -93,8 +92,8 @@ public class AsyncPlayerChatListener implements Listener {
                 break;
             }
             case WEBHOOK: {
-                String avatarUrl = plugin.getConfig().getString(ConfigSection.RENDER_LINK)
-                        .replace("#uuid", player.getUniqueId().toString());
+                String avatarUrl = plugin.getConfig().getString("options.message-render")
+                        .replace("<uuid>", player.getUniqueId().toString());
 
                 IWebhook webhook = WebhookHandler.getInstance().getWebhook(player.getWorld());
                 WebhookHandler.getInstance().sendWebhook(

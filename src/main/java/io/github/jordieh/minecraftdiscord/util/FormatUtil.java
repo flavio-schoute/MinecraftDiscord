@@ -18,6 +18,7 @@
 package io.github.jordieh.minecraftdiscord.util;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
+import lombok.NonNull;
 import org.bukkit.ChatColor;
 
 public final class FormatUtil {
@@ -32,7 +33,17 @@ public final class FormatUtil {
     }
 
     public static String avatarUrl(String uuid) {
-        return MinecraftDiscord.getInstance().getConfig().getString(ConfigSection.RENDER_LINK)
-                .replace("#uuid", uuid);
+        return MinecraftDiscord.getInstance().getConfig().getString("options.message-render")
+                .replace("<uuid>", uuid);
+    }
+
+    /**
+     * Truncates a String object to a certain length (n)
+     * @param s The String object to truncate
+     * @param n The maximum number of allowed characters
+     * @return The content of String s with length n
+     */
+    public static String truncateString(@NonNull String s, @NonNull int n) {
+        return s.substring(0, Math.min(s.length(), n));
     }
 }

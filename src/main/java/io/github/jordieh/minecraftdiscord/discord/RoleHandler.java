@@ -18,16 +18,20 @@
 package io.github.jordieh.minecraftdiscord.discord;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
-import io.github.jordieh.minecraftdiscord.util.ConfigSection;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class RoleHandler {
 
@@ -35,8 +39,38 @@ public class RoleHandler {
 
     private static RoleHandler instance;
 
+    private Set<IRole> roles;
+
     private RoleHandler() {
         logger.debug("Constructing RoleHandler");
+        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
+
+        roles = configuration.getLongList("role-synchronization.synchronizable-roles")
+                .stream()
+                .filter(aLong -> aLong != 0)
+                .map(ClientHandler.getInstance().getClient()::getRoleByID)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (!configuration.getBoolean("connection-role.enabled") && roles.isEmpty()) {
+            return;
+        }
+
+        long delay = configuration.getLong("role-synchronization.synchronization-time");
+        delay = TimeUnit.SECONDS.toMillis(delay);
+
+        MinecraftDiscord.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(
+                MinecraftDiscord.getInstance(), () -> Bukkit.getOnlinePlayers().stream()
+                        .filter(p -> LinkHandler.getInstance().isLinked((p.getUniqueId())))
+                        .forEach(player -> roles.forEach(role -> {
+                            if (player.hasPermission("minecraftdiscord.sync." + role.getLongID())) {
+                                long userID = LinkHandler.getInstance().getLinkedUser(player.getUniqueId());
+                                IUser user = ClientHandler.getInstance().getClient().getUserByID(userID);
+                                if (user != null) {
+                                    ClientHandler.getInstance().giveRole(role, user);
+                                }
+                            }
+                        })), delay, delay);
     }
 
     public static RoleHandler getInstance() {
@@ -44,12 +78,12 @@ public class RoleHandler {
     }
 
     public boolean isOnlineRoleEnabled() {
-        return MinecraftDiscord.getInstance().getConfig().getBoolean(ConfigSection.ROLE_ENABLED);
+        return MinecraftDiscord.getInstance().getConfig().getBoolean("connection-role.enabled");
     }
 
     public Optional<IRole> getOnlineUserRole() {
-        long id = MinecraftDiscord.getInstance().getConfig().getLong(ConfigSection.ROLE_UID);
-        return Optional.ofNullable(ClientHandler.getInstance().getGuild().getRoleByID(id));
+        long id = MinecraftDiscord.getInstance().getConfig().getLong("connection-role.unique");
+        return Optional.ofNullable(ClientHandler.getInstance().getClient().getRoleByID(id));
     }
 
     public Optional<IRole> useOnlineUserRole() {
@@ -70,7 +104,7 @@ public class RoleHandler {
 
         if (LinkHandler.getInstance().isLinked(uuid)) {
             long id = LinkHandler.getInstance().getLinkedUser(uuid);
-            IUser user = ClientHandler.getInstance().getGuild().getUserByID(id);
+            IUser user = ClientHandler.getInstance().getClient().getUserByID(id);
             if (user == null) {
                 LinkHandler.getInstance().unlink(id);
             }
@@ -86,7 +120,7 @@ public class RoleHandler {
 
         if (LinkHandler.getInstance().isLinked(uuid)) {
             long id = LinkHandler.getInstance().getLinkedUser(uuid);
-            IUser user = ClientHandler.getInstance().getGuild().getUserByID(id);
+            IUser user = ClientHandler.getInstance().getClient().getUserByID(id);
             if (user == null) {
                 LinkHandler.getInstance().unlink(id);
             }
@@ -101,7 +135,7 @@ public class RoleHandler {
         }
 
         LinkHandler.getInstance().getLinkMap().forEach((id, uuid) -> {
-            IUser user = ClientHandler.getInstance().getGuild().getUserByID(id);
+            IUser user = ClientHandler.getInstance().getClient().getUserByID(id);
             if (user == null) {
                 LinkHandler.getInstance().unlink(id);
                 return;
@@ -121,7 +155,7 @@ public class RoleHandler {
         }
 
         LinkHandler.getInstance().getLinkMap().forEach((id, uuid) -> {
-            IUser user = ClientHandler.getInstance().getGuild().getUserByID(id);
+            IUser user = ClientHandler.getInstance().getClient().getUserByID(id);
             if (user == null) {
                 LinkHandler.getInstance().unlink(id);
                 return;

@@ -38,7 +38,7 @@ public class PluginConfiguration {
         saveConfig();
     }
 
-    public void reloadConfig() {
+    private void reloadConfig() {
         configuration = YamlConfiguration.loadConfiguration(file);
 
         try (InputStream stream = MinecraftDiscord.getInstance().getResource(name)) {

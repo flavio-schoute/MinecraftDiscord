@@ -28,7 +28,7 @@ import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerJoinListener
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerQuitListener;
 import io.github.jordieh.minecraftdiscord.metrics.MetricsHandler;
 import io.github.jordieh.minecraftdiscord.util.LangUtil;
-import io.github.jordieh.minecraftdiscord.world.WorldHandler;
+import io.github.jordieh.minecraftdiscord.world.ChannelHandler;
 import lombok.Getter;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
@@ -46,8 +46,6 @@ public final class MinecraftDiscord extends JavaPlugin {
     private final Logger logger = LoggerFactory.getLogger(MinecraftDiscord.class);
 
     // Resolving log4j dependency TODO Find a way to fix this in the pom.xml
-    // InputStream in = getClass().getClassLoader().getResourceAsStream("log4j.properties");
-    // PropertyConfigurator.configure(in);
     static {
         ConsoleAppender appender = new ConsoleAppender();
         PatternLayout layout = new PatternLayout();
@@ -89,7 +87,7 @@ public final class MinecraftDiscord extends JavaPlugin {
      * Make sure the bot has started up before doing anything special
      */
     public void finishStartup() {
-        if (startup == -1) {
+        if (startup == -1 || !ClientHandler.getInstance().getClient().isReady()) {
             return;
         }
 
@@ -97,7 +95,7 @@ public final class MinecraftDiscord extends JavaPlugin {
         LinkHandler.getInstance();
         WebhookHandler.getInstance();
         MetricsHandler.getInstance();
-        WorldHandler.getInstance();
+        ChannelHandler.getInstance();
 
         RoleHandler.getInstance().clearRoleEnabledUsers(false);
         RoleHandler.getInstance().giveLinkedUsersOnlineRole();
