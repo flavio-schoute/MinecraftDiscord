@@ -17,6 +17,7 @@
 
 package io.github.jordieh.minecraftdiscord;
 
+import io.github.jordieh.minecraftdiscord.command.DiscordCommand;
 import io.github.jordieh.minecraftdiscord.command.LinkCommand;
 import io.github.jordieh.minecraftdiscord.command.UnlinkCommand;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
@@ -77,10 +78,12 @@ public final class MinecraftDiscord extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        RoleHandler.getInstance().clearRoleEnabledUsers(false);
+        if (!ClientHandler.crashed) {
+            RoleHandler.getInstance().clearRoleEnabledUsers(false);
+            LinkHandler.getInstance().saveResources();
+        }
         logger.debug("Plugin disable procedure has been engaged");
-        LinkHandler.getInstance().saveResources();
-        ClientHandler.getInstance().disable();
+        ClientHandler.getInstance().disable(false);
     }
 
     /**
@@ -108,6 +111,7 @@ public final class MinecraftDiscord extends JavaPlugin {
         logger.debug("Registering commands");
         getCommand("link").setExecutor(new LinkCommand());
         getCommand("unlink").setExecutor(new UnlinkCommand());
+        getCommand("discord").setExecutor(new DiscordCommand());
 
         startup = ((System.currentTimeMillis() - startup)) / 1000.0d;
         NumberFormat format = new DecimalFormat("#0.00");

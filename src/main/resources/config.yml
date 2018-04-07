@@ -1,15 +1,16 @@
 # Please read the documentation at ...
 token: xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-url: https://discord.gg/...
+invite: 0
 
 channels:
-  global: 0
-  status: 0
-  console: 0
+  world: 0
+#  global: 0
+#  status: 0
+#  console: 0
 
-disabled-dependencies:
-  - MinecraftDiscord
+#disabled-dependencies:
+#  - MinecraftDiscord
 
 presence:
   enabled: true
@@ -20,14 +21,14 @@ presence:
 options:
   disable-automated-users: true
   require-linking: false
-  process-console: true
+#  process-console: true
   linking-enabled: true
   truncation-size: 256
   message-render: https://visage.surgeplay.com/head/128/<uuid>
   message-type: embed
-  language: en
-  blocked-users:
-    - 0
+#  language: en
+#  blocked-users:
+#    - 0
 
 connection-role:
   enabled: false
@@ -37,12 +38,12 @@ translated-expressions:
   '&[0-9A-Fa-fK-Ok-oRr]': ""
   '\s{4,}': " "
 
-command-execution:
-  "+ip": "play.example.com"
-  "+shop": "https://shop.example.com"
+#command-execution:
+#  "+ip": "play.example.com"
+#  "+shop": "https://shop.example.com"
 
 role-synchronization:
   synchronization-time: 300
-  disallow-unlinking: true
+#  disallow-unlinking: true
   synchronizable-roles:
     - 0

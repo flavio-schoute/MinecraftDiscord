@@ -43,6 +43,7 @@ public class ClientHandler implements IListener<ReadyEvent> {
     @Getter private IDiscordClient client;
 //    @Getter private IGuild guild;
     private boolean disable;
+    public static boolean crashed;
 
     private ClientHandler() {
         logger.debug("Constructing ClientHandler");
@@ -68,7 +69,9 @@ public class ClientHandler implements IListener<ReadyEvent> {
                         "# You seem to have a invalid bot token      #\n" +
                         "# Please visit ... and change your token!   #\n" +
                         "#############################################");
-                this.disable();
+                crashed = true;
+                this.disable(true);
+                return;
             } else {
                 logger.warn("Error detected while attempting Discord connection", e);
             }
@@ -134,8 +137,8 @@ public class ClientHandler implements IListener<ReadyEvent> {
         }).get();
     }
 
-    public void disable() {
-        if (client == null || !client.isReady()) {
+    public void disable(boolean force) {
+        if ((client == null || !client.isReady()) && !force) {
             logger.trace("Waiting for ReadyEvent to call ClientHandler#disable();");
             disable = true;
             return;
@@ -149,28 +152,21 @@ public class ClientHandler implements IListener<ReadyEvent> {
 //                    .ifPresent(channel -> sendMessage(channel, builder.build()));
 //        }
         logger.info("Disabling plugin: Read previous output for more information");
-        client.logout();
+        if (!force) {
+            client.logout();
+        }
 
         logger.debug("Disabling plugin via ClientHandler#disable();");
         Plugin plugin = MinecraftDiscord.getInstance();
-        plugin.getServer().getPluginManager().disablePlugin(MinecraftDiscord.getInstance());
+        plugin.getServer().getPluginManager().disablePlugin(plugin);
     }
-
-//    @Deprecated
-//    public Optional<IChannel> findConfigChannel(String path) {
-//        logger.trace("Attempting to find channel in guild {} using config section {}", this.guild.getLongID(), path);
-//        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
-//        long configurationLong = configuration.getLong(path);
-//        IChannel iChannel = this.guild.getChannelByID(configurationLong);
-//        return Optional.ofNullable(iChannel);
-//    }
 
     @Override
     public void handle(ReadyEvent event) {
         logger.debug("ReadyEvent has been called");
 
         if (this.disable) {
-            this.disable();
+            this.disable(false);
             return;
         }
 

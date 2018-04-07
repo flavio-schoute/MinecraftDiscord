@@ -30,6 +30,8 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.EmbedBuilder;
 
+import static io.github.jordieh.minecraftdiscord.util.LangUtil.tr;
+
 public class MessageReceivedEventHandler implements IListener<MessageReceivedEvent> {
 
     @Override
@@ -45,6 +47,50 @@ public class MessageReceivedEventHandler implements IListener<MessageReceivedEve
             }
         }
 
+        if (message.getContent().equals("/minecraftdiscord")) {
+            if (!channel.getName().equalsIgnoreCase("minecraftdiscord")) {
+                EmbedBuilder builder = new EmbedBuilder();
+                builder.withColor(0x5599cc);
+                builder.withDescription("This command can only be executed in a channel called `minecraftdiscord`");
+                builder.withAuthorName(author.getName());
+                builder.withAuthorIcon(author.getAvatarURL());
+                ClientHandler.getInstance().deleteMessage(message);
+                ClientHandler.getInstance().sendMessage(channel, builder.build());
+                return;
+            }
+
+            StringBuilder channelBuilder = new StringBuilder();
+            event.getGuild().getChannels().forEach(c -> {
+                channelBuilder.append("~ `");
+                channelBuilder.append(c.getLongID());
+                channelBuilder.append("` = `#");
+                channelBuilder.append(c.getName());
+                channelBuilder.append("`\n");
+            });
+
+            StringBuilder roleBuilder = new StringBuilder();
+            event.getGuild().getRoles().forEach(r -> {
+                roleBuilder.append("~ `");
+                roleBuilder.append(r.getLongID());
+                roleBuilder.append("` = `@");
+                roleBuilder.append(r.getName());
+                roleBuilder.append("`\n");
+            });
+
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.withAuthorName(author.getName());
+            builder.withAuthorIcon(author.getAvatarURL());
+            builder.withTitle("Guild information for " + event.getGuild().getName());
+            builder.withColor(0x5599cc);
+            builder.appendField("Guild ID", event.getGuild().getStringID(), true);
+            builder.appendField("Plugin Version", MinecraftDiscord.getInstance().getDescription().getVersion(), true);
+            builder.appendField("Connected channels", channelBuilder.toString(), true);
+            builder.appendField("Available roles", roleBuilder.toString(), true);
+            ClientHandler.getInstance().deleteMessage(message);
+            ClientHandler.getInstance().sendMessage(channel, builder.build());
+            return;
+        }
+
         if (LinkHandler.getInstance().handleLinking(event)) {
             return;
         }
@@ -56,7 +102,7 @@ public class MessageReceivedEventHandler implements IListener<MessageReceivedEve
         }
 
         int truncationtLength = configuration.getInt("options.truncation-size");
-        String content = message.getContent();
+        String content = FormatUtil.formatRegex(message.getContent());
 
         if (content.length() > truncationtLength) {
             content = FormatUtil.truncateString(content, truncationtLength);
@@ -73,10 +119,10 @@ public class MessageReceivedEventHandler implements IListener<MessageReceivedEve
             return;
         }
 
-        String msg = "&7[&d#CHANNEL&7] #USER: #MESSAGE" // TODO Custom messages
-                .replace("#user", FormatUtil.stripColors(author.getName()))
-                .replace("#channel", channel.getName())
-                .replace("#message", content);
+        String msg = tr("discord.message.format",
+                channel.getName(),
+                FormatUtil.stripColors(author.getName()),
+                content);
 
         System.out.println(msg);
 

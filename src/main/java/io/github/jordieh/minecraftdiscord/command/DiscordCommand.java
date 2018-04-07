@@ -18,9 +18,11 @@
 package io.github.jordieh.minecraftdiscord.command;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import static io.github.jordieh.minecraftdiscord.util.LangUtil.tr;
 
@@ -28,8 +30,27 @@ public class DiscordCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        sender.sendMessage(tr("command.discord.message",
-                MinecraftDiscord.getInstance().getConfig().getString("url")));
+
+        String invite = MinecraftDiscord.getInstance().getConfig().getString("invite");
+
+        if (invite.equals("0")) {
+            sender.sendMessage(tr("command.discord.invite"));
+            return true;
+        }
+
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("https://discord.gg/" + invite);
+            return true;
+        }
+
+        Player player = (Player) sender;
+        if (!player.hasPermission("minecraftdiscord.discord")) {
+            player.sendMessage(tr("command.discord.nopermission"));
+            return true;
+        }
+
+        String message = "tellraw " + player.getName() + " " + tr("command.discord.message", invite);
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message);
         return true;
     }
 }

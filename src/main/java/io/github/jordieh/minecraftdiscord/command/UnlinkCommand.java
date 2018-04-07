@@ -53,7 +53,11 @@ public class UnlinkCommand implements CommandExecutor {
 
         Player player = (Player) sender;
         if (!LinkHandler.getInstance().isLinked(player.getUniqueId())) {
-            sender.sendMessage(tr("command.unlink.failed"));
+            if (player.hasPermission("minecraftdiscord.connect")) {
+                sender.sendMessage(tr("command.unlink.failed"));
+            } else {
+                sender.sendMessage(tr("command.unlink.nopermission"));
+            }
             return true;
         }
 

@@ -21,16 +21,14 @@ import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RoleHandler {
@@ -39,7 +37,7 @@ public class RoleHandler {
 
     private static RoleHandler instance;
 
-    private Set<IRole> roles;
+    private Map<IRole, Permission> roles; // Permission object to make sure operators don't get all roles
 
     private RoleHandler() {
         logger.debug("Constructing RoleHandler");
@@ -50,27 +48,17 @@ public class RoleHandler {
                 .filter(aLong -> aLong != 0)
                 .map(ClientHandler.getInstance().getClient()::getRoleByID)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toMap(r -> r, r -> new Permission("minecraftdiscord.sync." + r.getLongID(), PermissionDefault.FALSE)));
 
         if (!configuration.getBoolean("connection-role.enabled") && roles.isEmpty()) {
             return;
         }
 
         long delay = configuration.getLong("role-synchronization.synchronization-time");
-        delay = TimeUnit.SECONDS.toMillis(delay);
+        delay = delay * 20; // 20 Minecraft game ticks are equal to 1 second
 
-        MinecraftDiscord.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(
-                MinecraftDiscord.getInstance(), () -> Bukkit.getOnlinePlayers().stream()
-                        .filter(p -> LinkHandler.getInstance().isLinked((p.getUniqueId())))
-                        .forEach(player -> roles.forEach(role -> {
-                            if (player.hasPermission("minecraftdiscord.sync." + role.getLongID())) {
-                                long userID = LinkHandler.getInstance().getLinkedUser(player.getUniqueId());
-                                IUser user = ClientHandler.getInstance().getClient().getUserByID(userID);
-                                if (user != null) {
-                                    ClientHandler.getInstance().giveRole(role, user);
-                                }
-                            }
-                        })), delay, delay);
+        MinecraftDiscord.getInstance().getServer().getScheduler()
+                .scheduleSyncRepeatingTask(MinecraftDiscord.getInstance(), new RoleRunnable(), delay, delay);
     }
 
     public static RoleHandler getInstance() {
@@ -166,5 +154,32 @@ public class RoleHandler {
                 ClientHandler.getInstance().removeRole(role.get(), user);
             }
         });
+    }
+
+    private final class RoleRunnable implements Runnable {
+        @Override
+        public void run() {
+            Bukkit.getOnlinePlayers().stream()
+                    .filter(p -> LinkHandler.getInstance().isLinked(p.getUniqueId()))
+                    .forEach(player -> {
+                        long userID = LinkHandler.getInstance().getLinkedUser(player.getUniqueId());
+                        IUser user = ClientHandler.getInstance().getClient().getUserByID(userID);
+                        if (user == null) {
+                            return;
+                        }
+
+                        roles.keySet().forEach(role -> {
+                            if (player.hasPermission(roles.get(role))) {
+                                if (!user.hasRole(role)) {
+                                    ClientHandler.getInstance().giveRole(role, user);
+                                }
+                            } else {
+                                if (user.hasRole(role)) {
+                                    ClientHandler.getInstance().removeRole(role, user);
+                                }
+                            }
+                        });
+                    });
+        }
     }
 }

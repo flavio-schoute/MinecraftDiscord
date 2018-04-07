@@ -75,7 +75,7 @@ public class LangUtil {
         try {
             return languageBundle.getString(message);
         } catch (MissingResourceException e) {
-            logger.warn("Missing translation key ({}) detected in translation file {}", e.getKey(), languageBundle.getLocale().toString(), e);
+            logger.warn("Missing translation key ({}) detected in translation file messages_{}.properties", e.getKey(), languageBundle.getLocale().toString());
             return resourceBundle.getString(message);
         }
     }

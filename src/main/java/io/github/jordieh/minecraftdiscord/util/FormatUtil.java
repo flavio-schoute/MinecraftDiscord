@@ -21,11 +21,32 @@ import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
 import lombok.NonNull;
 import org.bukkit.ChatColor;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public final class FormatUtil {
 
+    static {
+        regexMap = MinecraftDiscord.getInstance().getConfig()
+                .getConfigurationSection("translated-expressions")
+                .getValues(false)
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue() instanceof String)
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
+    }
+
+    private static Map<String, String> regexMap;
+
+    public static String formatRegex(String s) {
+        for (Map.Entry<String, String> entry : regexMap.entrySet()) {
+            s = s.replaceAll(entry.getKey(), entry.getValue());
+        }
+        return s;
+    }
+
     public static String stripColors(String s) {
-        return s.replaceAll("(&[\\da-fA-Fk-oK-OrR]|[\\n\\r]*+)", "")
-                .replaceAll("\\s{4,}", " ");
+        return s.replaceAll("&[\\da-fA-Fk-oK-OrR]", "");
     }
 
     public static String formatColors(String s) {
