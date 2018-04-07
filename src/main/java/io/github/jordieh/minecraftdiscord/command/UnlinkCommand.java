@@ -35,14 +35,13 @@
 package io.github.jordieh.minecraftdiscord.command;
 
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
+import io.github.jordieh.minecraftdiscord.util.Translatable;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import static io.github.jordieh.minecraftdiscord.util.LangUtil.tr;
-
-public class UnlinkCommand implements CommandExecutor {
+public class UnlinkCommand extends Translatable implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

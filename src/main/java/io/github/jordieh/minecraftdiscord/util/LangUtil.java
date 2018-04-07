@@ -67,10 +67,6 @@ public class LangUtil {
         return instance == null ? instance = new LangUtil() : instance;
     }
 
-    public static String tr(String message, Object... objects) {
-        return FormatUtil.formatColors(getInstance().format(message, objects));
-    }
-
     private String translate(String message) {
         try {
             return languageBundle.getString(message);

@@ -20,11 +20,12 @@ package io.github.jordieh.minecraftdiscord.util;
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
 import lombok.NonNull;
 import org.bukkit.ChatColor;
+import sx.blah.discord.handle.obj.IUser;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public final class FormatUtil {
+public class FormatUtil {
 
     static {
         regexMap = MinecraftDiscord.getInstance().getConfig()
@@ -56,6 +57,10 @@ public final class FormatUtil {
     public static String avatarUrl(String uuid) {
         return MinecraftDiscord.getInstance().getConfig().getString("options.message-render")
                 .replace("<uuid>", uuid);
+    }
+
+    public static String usuableTag(IUser user) {
+        return user.getName() + "#" + user.getDiscriminator();
     }
 
     /**

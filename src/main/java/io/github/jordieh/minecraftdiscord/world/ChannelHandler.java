@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ChannelHandler {
+public final class ChannelHandler {
 
     private final Logger logger = LoggerFactory.getLogger(ChannelHandler.class);
 

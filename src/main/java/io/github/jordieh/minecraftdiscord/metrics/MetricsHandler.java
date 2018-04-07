@@ -49,7 +49,7 @@ public class MetricsHandler {
     }
 
     private void registerSimplePie(@NonNull String id, @NonNull String path, @NonNull String def) {
-        String s = MinecraftDiscord.getInstance().getConfig().getString(path).toLowerCase();
+        String s = MinecraftDiscord.getInstance().getConfig().getString(path, def).toLowerCase();
         this.metrics.addCustomChart(new Metrics.SimplePie(id, () -> s));
     }
 }

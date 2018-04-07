@@ -19,8 +19,10 @@ package io.github.jordieh.minecraftdiscord.listeners.discord;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
+import io.github.jordieh.minecraftdiscord.discord.CommandHandler;
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
+import io.github.jordieh.minecraftdiscord.util.Translatable;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import sx.blah.discord.api.events.IListener;
@@ -30,9 +32,7 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.EmbedBuilder;
 
-import static io.github.jordieh.minecraftdiscord.util.LangUtil.tr;
-
-public class MessageReceivedEventHandler implements IListener<MessageReceivedEvent> {
+public class MessageReceivedEventHandler extends Translatable implements IListener<MessageReceivedEvent> {
 
     @Override
     public void handle(MessageReceivedEvent event) {
@@ -47,51 +47,7 @@ public class MessageReceivedEventHandler implements IListener<MessageReceivedEve
             }
         }
 
-        if (message.getContent().equals("/minecraftdiscord")) {
-            if (!channel.getName().equalsIgnoreCase("minecraftdiscord")) {
-                EmbedBuilder builder = new EmbedBuilder();
-                builder.withColor(0x5599cc);
-                builder.withDescription("This command can only be executed in a channel called `minecraftdiscord`");
-                builder.withAuthorName(author.getName());
-                builder.withAuthorIcon(author.getAvatarURL());
-                ClientHandler.getInstance().deleteMessage(message);
-                ClientHandler.getInstance().sendMessage(channel, builder.build());
-                return;
-            }
-
-            StringBuilder channelBuilder = new StringBuilder();
-            event.getGuild().getChannels().forEach(c -> {
-                channelBuilder.append("~ `");
-                channelBuilder.append(c.getLongID());
-                channelBuilder.append("` = `#");
-                channelBuilder.append(c.getName());
-                channelBuilder.append("`\n");
-            });
-
-            StringBuilder roleBuilder = new StringBuilder();
-            event.getGuild().getRoles().forEach(r -> {
-                roleBuilder.append("~ `");
-                roleBuilder.append(r.getLongID());
-                roleBuilder.append("` = `@");
-                roleBuilder.append(r.getName());
-                roleBuilder.append("`\n");
-            });
-
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.withAuthorName(author.getName());
-            builder.withAuthorIcon(author.getAvatarURL());
-            builder.withTitle("Guild information for " + event.getGuild().getName());
-            builder.withColor(0x5599cc);
-            builder.appendField("Guild ID", event.getGuild().getStringID(), true);
-            builder.appendField("Plugin Version", MinecraftDiscord.getInstance().getDescription().getVersion(), true);
-            builder.appendField("Connected channels", channelBuilder.toString(), true);
-            builder.appendField("Available roles", roleBuilder.toString(), true);
-            ClientHandler.getInstance().deleteMessage(message);
-            ClientHandler.getInstance().sendMessage(channel, builder.build());
-            return;
-        }
-
-        if (LinkHandler.getInstance().handleLinking(event)) {
+        if (CommandHandler.getInstance().handleExecution(event)) {
             return;
         }
 
