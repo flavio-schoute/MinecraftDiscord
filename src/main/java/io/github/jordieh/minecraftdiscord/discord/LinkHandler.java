@@ -49,7 +49,7 @@ public class LinkHandler {
         this.configuration = new PluginConfiguration(this.path);
 
         this.uuidMap = new HashMap<>();
-        this.linkMap = configuration.getConfig().getDefaultSection()
+        this.linkMap = configuration.getConfig().getConfigurationSection(this.path)
                 .getValues(false)
                 .entrySet()
                 .stream()

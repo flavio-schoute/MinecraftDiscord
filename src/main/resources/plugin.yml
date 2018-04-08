@@ -5,6 +5,8 @@ authors: [Jordieh]
 description: ${project.description}
 website: ${project.url}
 
+softdepend: [PremiumVanish, SuperVanish]
+
 commands:
   link:
     permission: minecraftdiscord.connect

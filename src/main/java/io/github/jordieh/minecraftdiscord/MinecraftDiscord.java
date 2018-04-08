@@ -20,6 +20,7 @@ package io.github.jordieh.minecraftdiscord;
 import io.github.jordieh.minecraftdiscord.command.DiscordCommand;
 import io.github.jordieh.minecraftdiscord.command.LinkCommand;
 import io.github.jordieh.minecraftdiscord.command.UnlinkCommand;
+import io.github.jordieh.minecraftdiscord.dependencies.DependencyHandler;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
 import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
@@ -103,6 +104,7 @@ public final class MinecraftDiscord extends JavaPlugin {
         WebhookHandler.getInstance();
         MetricsHandler.getInstance();
         ChannelHandler.getInstance();
+        DependencyHandler.getInstance();
 
         RoleHandler.getInstance().clearConnectionUsers(true);
         RoleHandler.getInstance().distributeConnectionRole();
@@ -124,6 +126,8 @@ public final class MinecraftDiscord extends JavaPlugin {
 
         startup = -1;
     }
+
+
 
     @Deprecated
     public void saveResource(String resourcePath, boolean replace) {

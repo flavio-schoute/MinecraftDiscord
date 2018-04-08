@@ -76,7 +76,6 @@ public class ClientHandler implements IListener<ReadyEvent> {
                         "#############################################");
                 crashed = true;
                 this.disable(true);
-                return;
             } else {
                 logger.warn("Error detected while attempting Discord connection", e);
             }

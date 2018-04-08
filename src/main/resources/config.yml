@@ -10,8 +10,8 @@ channels:
 #  status: 0
 #  console: 0
 
-#disabled-dependencies:
-#  - MinecraftDiscord
+disabled-dependencies:
+  - MinecraftDiscord
 
 presence:
   enabled: true

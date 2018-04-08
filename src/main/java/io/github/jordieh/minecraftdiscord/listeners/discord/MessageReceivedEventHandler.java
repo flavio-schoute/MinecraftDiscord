@@ -70,7 +70,6 @@ public class MessageReceivedEventHandler extends Translatable implements IListen
             builder.withColor(author.getColorForGuild(event.getGuild()));
             builder.withAuthorName(author.getName());
             ClientHandler.getInstance().sendMessage(channel, builder.build());
-            return;
         }
 
         String msg = tr("discord.message.format",

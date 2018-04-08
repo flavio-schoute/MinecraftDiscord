@@ -138,7 +138,6 @@ public class LangUtil {
         @Override
         public URL getResource(String name) {
             File file = new File(DATAFOLDER.getAbsolutePath() + File.separator + "language", name);
-            System.out.println(file.getAbsolutePath());
             if (file.exists()) {
                 try {
                     return file.toURI().toURL();
@@ -151,7 +150,6 @@ public class LangUtil {
         @Override
         public InputStream getResourceAsStream(String name) {
             File file = new File(DATAFOLDER.getAbsolutePath() + File.separator + "language", name);
-            System.out.println(file.getAbsolutePath());
             if (file.exists()) {
                 try {
                     return new FileInputStream(file);

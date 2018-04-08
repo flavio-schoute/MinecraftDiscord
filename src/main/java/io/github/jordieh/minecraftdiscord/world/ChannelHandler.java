@@ -18,11 +18,11 @@
 package io.github.jordieh.minecraftdiscord.world;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
+import io.github.jordieh.minecraftdiscord.dependencies.listeners.Dependency;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IChannel;
@@ -38,14 +38,22 @@ public final class ChannelHandler {
     private static ChannelHandler instance;
 
     @Getter private Map<String, Long> longMap;
+    private Map<String, Long> integrationMap;
 
     private ChannelHandler() {
-        Plugin plugin = MinecraftDiscord.getInstance();
-        FileConfiguration configuration = plugin.getConfig();
+        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
 
-        longMap = configuration.getConfigurationSection("channels").getValues(false)
+        this.longMap = configuration.getConfigurationSection("channels").getValues(false)
                 .entrySet()
                 .stream()
+                .filter(e -> !e.getKey().contains("@")) // This indicates a plugin hook and should not be registered here
+                .filter(e -> e.getValue() instanceof Long)
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> (Long) e.getValue()));
+
+        this.integrationMap = configuration.getConfigurationSection("channels").getValues(false)
+                .entrySet()
+                .stream()
+                .filter(e -> e.getKey().contains("@"))
                 .filter(e -> e.getValue() instanceof Long)
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> (Long) e.getValue()));
     }
@@ -54,12 +62,18 @@ public final class ChannelHandler {
         return instance == null ? instance = new ChannelHandler() : instance;
     }
 
-    public Optional<IChannel> getConnectedChannel(@NonNull String name) {
-        if (!longMap.containsKey(name)) {
+    public Optional<IChannel> getIntegrationChannel(@NonNull String name, @NonNull Dependency dependency) {
+        String channel = dependency.name + "@" + name;
+        if (!this.integrationMap.containsKey(channel)) {
             return Optional.empty();
         }
-        return ClientHandler.getInstance().getClient().getChannels().stream()
-                .filter(channel -> channel.getLongID() == longMap.get(name))
-                .findFirst();
+        return Optional.ofNullable(ClientHandler.getInstance().getClient().getChannelByID(this.integrationMap.get(channel)));
+    }
+
+    public Optional<IChannel> getConnectedChannel(@NonNull String name) {
+        if (!this.longMap.containsKey(name)) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(ClientHandler.getInstance().getClient().getChannelByID(this.longMap.get(name)));
     }
 }
