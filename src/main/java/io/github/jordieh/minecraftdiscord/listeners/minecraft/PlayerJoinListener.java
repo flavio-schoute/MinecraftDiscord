@@ -17,6 +17,7 @@
 
 package io.github.jordieh.minecraftdiscord.listeners.minecraft;
 
+import io.github.jordieh.minecraftdiscord.dependencies.DependencyHandler;
 import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,7 +27,9 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        RoleHandler.getInstance().giveConnectionRole(event.getPlayer().getUniqueId());
+        if (!DependencyHandler.getInstance().isVanished(event.getPlayer())) {
+            RoleHandler.getInstance().giveConnectionRole(event.getPlayer().getUniqueId());
+        }
     }
 
 }

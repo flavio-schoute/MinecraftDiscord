@@ -107,6 +107,14 @@
             <id>cubekrowd-repo</id>
             <url>https://mavenrepo.cubekrowd.net/artifactory/repo/</url>
         </repository>
+        <repository> <!-- VanishNoPacket -->
+            <id>kitteh-repo</id>
+            <url>http://repo.kitteh.org/service/local/repositories/releases/content/org/kitteh/VanishNoPacket/</url>
+        </repository>
+        <repository> <!-- iDisguise -->
+            <id>robingrether-repo</id>
+            <url>http://repo.robingrether.de/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -141,6 +149,18 @@
             <groupId>de.myzelyam</groupId>
             <artifactId>SuperVanish</artifactId>
             <version>6.0.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency> <!-- VanishNoPacket -->
+            <groupId>org.kitteh</groupId>
+            <artifactId>VanishNoPacket</artifactId>
+            <version>3.19.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency> <!-- iDisguise -->
+            <groupId>de.robingrether.idisguise</groupId>
+            <artifactId>idisguise-core</artifactId>
+            <version>5.6.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

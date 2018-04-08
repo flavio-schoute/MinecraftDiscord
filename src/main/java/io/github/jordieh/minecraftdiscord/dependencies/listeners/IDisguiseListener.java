@@ -17,13 +17,16 @@
 
 package io.github.jordieh.minecraftdiscord.dependencies.listeners;
 
-import de.myzelyam.api.vanish.PlayerHideEvent;
-import de.myzelyam.api.vanish.PlayerShowEvent;
+import de.robingrether.idisguise.api.DisguiseEvent;
+import de.robingrether.idisguise.api.OfflinePlayerDisguiseEvent;
+import de.robingrether.idisguise.api.OfflinePlayerUndisguiseEvent;
+import de.robingrether.idisguise.api.UndisguiseEvent;
+import de.robingrether.idisguise.disguise.Disguise;
 import io.github.jordieh.minecraftdiscord.dependencies.Dependency;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
 import io.github.jordieh.minecraftdiscord.world.ChannelHandler;
-import lombok.NonNull;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -32,34 +35,35 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.EmbedBuilder;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
 
-/**
- * Integration for SuperVanish & PremiumVanish
- */
-public class SuperVanishListener implements Listener {
+public class IDisguiseListener implements Listener {
 
     private final Dependency dependency;
+    private final Pattern pattern;
 
-    public SuperVanishListener(@NonNull Dependency dependency) {
-        this.dependency = dependency;
+    public IDisguiseListener() {
+        this.dependency = Dependency.IDISGUISE;
+        this.pattern = Pattern.compile("(?<first>\\b[a-z])");
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onPlayerHide(PlayerHideEvent event) {
-        Optional<IChannel> channel = ChannelHandler.getInstance().getIntegrationChannel("events", dependency);
+    public void onDisguise(DisguiseEvent event) {
+        Optional<IChannel> channel = ChannelHandler.getInstance().getIntegrationChannel("disguise", dependency);
         if (!channel.isPresent()) {
             return;
         }
 
-        String s = event.isSilent() ? " silently" : "";
-
+        Disguise disguise = event.getDisguise();
         Player player = event.getPlayer();
+
+        String name = WordUtils.capitalize(disguise.getType().getDefaultCommandArgument().replace("_", " "));
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.withAuthorIcon(FormatUtil.avatarUrl(player.getUniqueId().toString()));
         builder.withAuthorName(player.getName());
         builder.withColor(0xFFAA00);
-        builder.withDescription(player.getName() + " has vanished" + s + "!");
+        builder.withDescription(player.getName() + " has disguised into a " + name + "!");
         builder.withTimestamp(System.currentTimeMillis());
         builder.withFooterText(this.dependency.getName());
         builder.withFooterIcon(this.dependency.getIcon());
@@ -68,26 +72,26 @@ public class SuperVanishListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onPlayerShow(PlayerShowEvent event) {
-        Optional<IChannel> channel = ChannelHandler.getInstance().getIntegrationChannel("events", dependency);
+    public void onOfflinePlayerDisguise(OfflinePlayerDisguiseEvent event) {
+        Optional<IChannel> channel = ChannelHandler.getInstance().getIntegrationChannel("disguise", dependency);
         if (!channel.isPresent()) {
             return;
         }
-
-        String s = event.isSilent() ? " silently" : "";
-
-        Player player = event.getPlayer();
-
-        EmbedBuilder builder = new EmbedBuilder();
-        builder.withAuthorIcon(FormatUtil.avatarUrl(player.getUniqueId().toString()));
-        builder.withAuthorName(player.getName());
-        builder.withColor(0x00AA00);
-        builder.withDescription(player.getName() + " has appeared" + s + "!");
-        builder.withTimestamp(System.currentTimeMillis());
-        builder.withFooterText(this.dependency.getName());
-        builder.withFooterIcon(this.dependency.getIcon());
-
-        ClientHandler.getInstance().sendMessage(channel.get(), builder.build());
     }
 
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onUndisguise(UndisguiseEvent event) {
+        Optional<IChannel> channel = ChannelHandler.getInstance().getIntegrationChannel("undisguise", dependency);
+        if (!channel.isPresent()) {
+            return;
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onOfflinePlayerUndisguise(OfflinePlayerUndisguiseEvent event) {
+        Optional<IChannel> channel = ChannelHandler.getInstance().getIntegrationChannel("undisguise", dependency);
+        if (!channel.isPresent()) {
+            return;
+        }
+    }
 }

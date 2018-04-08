@@ -5,7 +5,7 @@ authors: [Jordieh]
 description: ${project.description}
 website: ${project.url}
 
-softdepend: [PremiumVanish, SuperVanish]
+softdepend: [PremiumVanish, SuperVanish, VanishNoPacket]
 
 commands:
   link:

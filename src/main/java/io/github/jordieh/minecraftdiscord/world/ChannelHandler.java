@@ -18,7 +18,7 @@
 package io.github.jordieh.minecraftdiscord.world;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
-import io.github.jordieh.minecraftdiscord.dependencies.listeners.Dependency;
+import io.github.jordieh.minecraftdiscord.dependencies.Dependency;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import lombok.Getter;
 import lombok.NonNull;
@@ -63,7 +63,7 @@ public final class ChannelHandler {
     }
 
     public Optional<IChannel> getIntegrationChannel(@NonNull String name, @NonNull Dependency dependency) {
-        String channel = dependency.name + "@" + name;
+        String channel = dependency.getName() + "@" + name;
         if (!this.integrationMap.containsKey(channel)) {
             return Optional.empty();
         }
