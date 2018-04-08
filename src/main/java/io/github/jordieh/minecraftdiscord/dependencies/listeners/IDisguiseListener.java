@@ -27,6 +27,7 @@ import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
 import io.github.jordieh.minecraftdiscord.world.ChannelHandler;
 import org.apache.commons.lang.WordUtils;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -66,7 +67,7 @@ public class IDisguiseListener implements Listener {
         builder.withDescription(player.getName() + " has disguised into a " + name + "!");
         builder.withTimestamp(System.currentTimeMillis());
         builder.withFooterText(this.dependency.getName());
-        builder.withFooterIcon(this.dependency.getIcon());
+        builder.withFooterIcon("https://jordieh.github.io/MinecraftDiscord/idisguise/" + event.getDisguise().getType().getDefaultCommandArgument()); // TODO
 
         ClientHandler.getInstance().sendMessage(channel.get(), builder.build());
     }
@@ -77,6 +78,22 @@ public class IDisguiseListener implements Listener {
         if (!channel.isPresent()) {
             return;
         }
+
+        Disguise disguise = event.getDisguise();
+        OfflinePlayer offlinePlayer = event.getPlayer();
+
+        String name = WordUtils.capitalize(disguise.getType().getDefaultCommandArgument().replace("_", " "));
+
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.withAuthorIcon(FormatUtil.avatarUrl(offlinePlayer.getUniqueId().toString()));
+        builder.withAuthorName(offlinePlayer.getName());
+        builder.withColor(0xFFAA00);
+        builder.withDescription(offlinePlayer.getName() + " has disguised into a " + name + " while offline!");
+        builder.withTimestamp(System.currentTimeMillis());
+        builder.withFooterText(this.dependency.getName());
+        builder.withFooterIcon("https://jordieh.github.io/MinecraftDiscord/idisguise/" + event.getDisguise().getType().getDefaultCommandArgument()); // TODO
+
+        ClientHandler.getInstance().sendMessage(channel.get(), builder.build());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -85,6 +102,22 @@ public class IDisguiseListener implements Listener {
         if (!channel.isPresent()) {
             return;
         }
+
+        Disguise disguise = event.getDisguise();
+        Player player = event.getPlayer();
+
+        String name = WordUtils.capitalize(disguise.getType().getDefaultCommandArgument().replace("_", " "));
+
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.withAuthorIcon(FormatUtil.avatarUrl(player.getUniqueId().toString()));
+        builder.withAuthorName(player.getName());
+        builder.withColor(0xFF5555);
+        builder.withDescription(player.getName() + " has undisguised from a " + name + "!");
+        builder.withTimestamp(System.currentTimeMillis());
+        builder.withFooterText(this.dependency.getName());
+        builder.withFooterIcon("https://jordieh.github.io/MinecraftDiscord/idisguise/" + event.getDisguise().getType().getDefaultCommandArgument() + ".png"); // TODO
+
+        ClientHandler.getInstance().sendMessage(channel.get(), builder.build());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -93,5 +126,21 @@ public class IDisguiseListener implements Listener {
         if (!channel.isPresent()) {
             return;
         }
+
+        Disguise disguise = event.getDisguise();
+        OfflinePlayer offlinePlayer = event.getPlayer();
+
+        String name = WordUtils.capitalize(disguise.getType().getDefaultCommandArgument().replace("_", " "));
+
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.withAuthorIcon(FormatUtil.avatarUrl(offlinePlayer.getUniqueId().toString()));
+        builder.withAuthorName(offlinePlayer.getName());
+        builder.withColor(0xFF5555);
+        builder.withDescription(offlinePlayer.getName() + " has undisguised from a " + name + " while offline!");
+        builder.withTimestamp(System.currentTimeMillis());
+        builder.withFooterText(this.dependency.getName());
+        builder.withFooterIcon("https://jordieh.github.io/MinecraftDiscord/idisguise/" + event.getDisguise().getType().getDefaultCommandArgument()); // TODO
+
+        ClientHandler.getInstance().sendMessage(channel.get(), builder.build());
     }
 }
