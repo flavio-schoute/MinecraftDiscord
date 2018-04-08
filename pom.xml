@@ -103,6 +103,10 @@
             <id>bstats-repo</id>
             <url>http://repo.bstats.org/content/repositories/releases/</url>
         </repository>
+        <repository> <!-- SuperVanish & PremiumVanish -->
+            <id>cubekrowd-repo</id>
+            <url>https://mavenrepo.cubekrowd.net/artifactory/repo/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -132,6 +136,12 @@
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
             <version>1.2</version>
+        </dependency>
+        <dependency> <!-- SuperVanish & PremiumVanish -->
+            <groupId>de.myzelyam</groupId>
+            <artifactId>SuperVanish</artifactId>
+            <version>6.0.4</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

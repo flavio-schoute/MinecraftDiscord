@@ -60,6 +60,14 @@ public class LinkHandler {
         return instance == null ? instance = new LinkHandler() : instance;
     }
 
+    /**
+     * Returns a copy of the linked users
+     * @return a copy of all linked users
+     */
+    public Map<Long, UUID> getLinkMap() {
+        return new HashMap<>(linkMap);
+    }
+
     public void saveResources() {
         Map<Long, String> stringMap = this.linkMap.entrySet()
                 .stream()

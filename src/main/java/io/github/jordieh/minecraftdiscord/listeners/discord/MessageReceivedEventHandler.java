@@ -57,17 +57,15 @@ public class MessageReceivedEventHandler extends Translatable implements IListen
             }
         }
 
-        int truncationtLength = configuration.getInt("options.truncation-size");
+        int truncationLength = configuration.getInt("options.truncation-size");
         String content = FormatUtil.formatRegex(message.getContent());
 
-        if (content.length() > truncationtLength) {
-            content = FormatUtil.truncateString(content, truncationtLength);
-
-            System.out.println(content.length()); // TODO Debug output
+        if (content.length() > truncationLength) {
+            content = FormatUtil.truncateString(content, truncationLength);
 
             EmbedBuilder builder = new EmbedBuilder();
             builder.withDescription("Your message has been changed to the following```" + content + "```");
-            builder.withTitle("You have overridden the character limit of " + truncationtLength + " characters");
+            builder.withTitle("You have overridden the character limit of " + truncationLength + " characters");
             builder.withAuthorIcon(author.getAvatarURL());
             builder.withColor(author.getColorForGuild(event.getGuild()));
             builder.withAuthorName(author.getName());
@@ -79,8 +77,6 @@ public class MessageReceivedEventHandler extends Translatable implements IListen
                 channel.getName(),
                 FormatUtil.stripColors(author.getName()),
                 content);
-
-        System.out.println(msg);
 
         Bukkit.broadcastMessage(FormatUtil.formatColors(msg));
     }

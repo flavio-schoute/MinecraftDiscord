@@ -5,6 +5,7 @@ invite: 0
 
 channels:
   world: 0
+  SuperVanish@events: 0 #TODO WGHLALE
 #  global: 0
 #  status: 0
 #  console: 0

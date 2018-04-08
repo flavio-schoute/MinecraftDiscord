@@ -21,7 +21,11 @@ import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 public class PluginConfiguration {
 

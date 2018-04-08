@@ -15,18 +15,17 @@
  *     along with MinecraftDiscord.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.github.jordieh.minecraftdiscord.listeners.minecraft;
+package io.github.jordieh.minecraftdiscord.dependencies;
 
-import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
+public class DependencieHandler {
 
-public class PlayerJoinListener implements Listener {
+    private static DependencieHandler instance;
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        RoleHandler.getInstance().giveConnectionRole(event.getPlayer().getUniqueId());
+    private DependencieHandler() {
+
     }
 
+    public static DependencieHandler getInstance() {
+        return instance == null ? instance = new DependencieHandler() : instance;
+    }
 }

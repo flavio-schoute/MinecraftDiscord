@@ -38,7 +38,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -79,7 +83,7 @@ public final class MinecraftDiscord extends JavaPlugin {
     @Override
     public void onDisable() {
         if (!ClientHandler.crashed) {
-            RoleHandler.getInstance().clearRoleEnabledUsers(false);
+            RoleHandler.getInstance().clearConnectionUsers(false);
             LinkHandler.getInstance().saveResources();
         }
         logger.debug("Plugin disable procedure has been engaged");
@@ -100,8 +104,8 @@ public final class MinecraftDiscord extends JavaPlugin {
         MetricsHandler.getInstance();
         ChannelHandler.getInstance();
 
-        RoleHandler.getInstance().clearRoleEnabledUsers(false);
-        RoleHandler.getInstance().giveLinkedUsersOnlineRole();
+        RoleHandler.getInstance().clearConnectionUsers(true);
+        RoleHandler.getInstance().distributeConnectionRole();
 
         logger.debug("Registering Bukkit events");
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
@@ -121,6 +125,7 @@ public final class MinecraftDiscord extends JavaPlugin {
         startup = -1;
     }
 
+    @Deprecated
     public void saveResource(String resourcePath, boolean replace) {
         if (resourcePath == null || resourcePath.equals("")) {
             throw new IllegalArgumentException("ResourcePath cannot be null or empty");

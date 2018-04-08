@@ -99,7 +99,7 @@ public class LinkCommand extends Translatable implements CommandExecutor {
             player.sendMessage(tr("discord.link.success.minecraft", FormatUtil.usuableTag(author)));
         }
 
-        RoleHandler.getInstance().giveOnlineRole(optional.get());
+        RoleHandler.getInstance().giveConnectionRole(optional.get());
 
     }
 }
