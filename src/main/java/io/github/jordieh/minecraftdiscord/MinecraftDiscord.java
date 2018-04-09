@@ -24,7 +24,7 @@ import io.github.jordieh.minecraftdiscord.dependencies.DependencyHandler;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
 import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
-import io.github.jordieh.minecraftdiscord.discord.WebhookHandler;
+import io.github.jordieh.minecraftdiscord.world.WebhookHandler;
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.AsyncPlayerChatListener;
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerJoinListener;
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerQuitListener;

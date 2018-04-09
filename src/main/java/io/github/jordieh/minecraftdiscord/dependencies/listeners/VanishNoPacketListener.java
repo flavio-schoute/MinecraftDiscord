@@ -19,6 +19,7 @@ package io.github.jordieh.minecraftdiscord.dependencies.listeners;
 
 import io.github.jordieh.minecraftdiscord.dependencies.Dependency;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
+import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
 import io.github.jordieh.minecraftdiscord.world.ChannelHandler;
 import org.bukkit.entity.Player;
@@ -49,6 +50,8 @@ public class VanishNoPacketListener implements Listener {
         Player player = event.getPlayer();
 
         if (event.isVanishing()) {
+            RoleHandler.getInstance().removeConnectionRole(player.getUniqueId());
+
             EmbedBuilder builder = new EmbedBuilder();
             builder.withAuthorIcon(FormatUtil.avatarUrl(player.getUniqueId().toString()));
             builder.withAuthorName(player.getName());
@@ -60,6 +63,8 @@ public class VanishNoPacketListener implements Listener {
 
             ClientHandler.getInstance().sendMessage(channel.get(), builder.build());
         } else {
+            RoleHandler.getInstance().giveConnectionRole(player.getUniqueId());
+
             EmbedBuilder builder = new EmbedBuilder();
             builder.withAuthorIcon(FormatUtil.avatarUrl(player.getUniqueId().toString()));
             builder.withAuthorName(player.getName());

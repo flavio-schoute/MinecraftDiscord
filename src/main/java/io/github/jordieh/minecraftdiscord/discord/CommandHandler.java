@@ -42,6 +42,13 @@ public class CommandHandler {
         this.executorMap.put("link", new LinkCommand());
         this.executorMap.put("unlink", new UnlinkCommand());
         this.executorMap.put("minecraftdiscord", new InfoCommand());
+        this.executorMap.put("eval", (event, channel, message, author, args) -> {
+            System.out.println(" \t<--------------------------->");
+            for (Thread thread : Thread.getAllStackTraces().keySet()) {
+                System.out.println(" - " + thread.getId() + " (" + thread.getName() + ")");
+            }
+            System.out.println(" \t<--------------------------->");
+        });
 
         FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
         this.prefix = configuration.getString("options.prefix");

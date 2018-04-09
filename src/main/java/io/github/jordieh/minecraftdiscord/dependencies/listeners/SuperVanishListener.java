@@ -21,6 +21,7 @@ import de.myzelyam.api.vanish.PlayerHideEvent;
 import de.myzelyam.api.vanish.PlayerShowEvent;
 import io.github.jordieh.minecraftdiscord.dependencies.Dependency;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
+import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
 import io.github.jordieh.minecraftdiscord.world.ChannelHandler;
 import lombok.NonNull;
@@ -55,6 +56,8 @@ public class SuperVanishListener implements Listener {
 
         Player player = event.getPlayer();
 
+        RoleHandler.getInstance().removeConnectionRole(player.getUniqueId());
+
         EmbedBuilder builder = new EmbedBuilder();
         builder.withAuthorIcon(FormatUtil.avatarUrl(player.getUniqueId().toString()));
         builder.withAuthorName(player.getName());
@@ -77,6 +80,8 @@ public class SuperVanishListener implements Listener {
         String s = event.isSilent() ? " silently" : "";
 
         Player player = event.getPlayer();
+
+        RoleHandler.getInstance().giveConnectionRole(player.getUniqueId());
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.withAuthorIcon(FormatUtil.avatarUrl(player.getUniqueId().toString()));
