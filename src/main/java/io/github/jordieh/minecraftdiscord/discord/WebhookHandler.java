@@ -45,6 +45,7 @@ import sx.blah.discord.handle.obj.IWebhook;
 
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public class WebhookHandler implements Listener {
 
     private static WebhookHandler instance;
@@ -57,6 +58,7 @@ public class WebhookHandler implements Listener {
     private long startTime = System.currentTimeMillis();
     private int rateLimit;
 
+    @Deprecated
     public static WebhookHandler getInstance() {
         return instance == null ? instance = new WebhookHandler() : instance;
     }

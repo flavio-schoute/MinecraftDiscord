@@ -24,7 +24,6 @@ import io.github.jordieh.minecraftdiscord.dependencies.DependencyHandler;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
 import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
-import io.github.jordieh.minecraftdiscord.world.WebhookHandler;
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.AsyncPlayerChatListener;
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerJoinListener;
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerQuitListener;
@@ -65,7 +64,7 @@ public final class MinecraftDiscord extends JavaPlugin {
     @Override
     public void onEnable() {
         startup = System.currentTimeMillis();
-        System.out.println("============== [MinecraftDiscord] ==============");
+        logger.error("dfgdf", new NullPointerException("dfgdfgdfgdfgfdg fd gdfg"));
 
         instance = this;
 
@@ -101,7 +100,6 @@ public final class MinecraftDiscord extends JavaPlugin {
 
         LangUtil.getInstance();
         LinkHandler.getInstance();
-        WebhookHandler.getInstance();
         MetricsHandler.getInstance();
         ChannelHandler.getInstance();
         DependencyHandler.getInstance();
@@ -122,7 +120,6 @@ public final class MinecraftDiscord extends JavaPlugin {
         startup = ((System.currentTimeMillis() - startup)) / 1000.0d;
         NumberFormat format = new DecimalFormat("#0.00");
         logger.info("The plugin has been enabled in {} seconds", format.format(startup));
-        System.out.println("============== [MinecraftDiscord] ==============");
 
         startup = -1;
     }

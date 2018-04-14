@@ -46,7 +46,7 @@ public class ClientHandler implements IListener<ReadyEvent> {
     private static ClientHandler instance;
 
     @Getter private IDiscordClient client;
-//    @Getter private IGuild guild;
+
     private boolean disable;
     public static boolean crashed;
 
@@ -89,56 +89,56 @@ public class ClientHandler implements IListener<ReadyEvent> {
     public void giveRole(IRole role, IUser user) {
         RequestBuffer.request(() -> {
             try {
-                logger.trace("Attempting to give user {} role {} ({})", user.getLongID(), role.getName(), role.getLongID());
+                logger.trace("Attempting to give user {} role [{}] ({})", user.getLongID(), role.getName(), role.getLongID());
                 user.addRole(role);
             } catch (DiscordException | MissingPermissionsException e) {
                 e.printStackTrace();
             }
-        }).get();
+        });
     }
 
     public void removeRole(IRole role, IUser user) {
         RequestBuffer.request(() -> {
             try {
-                logger.trace("Attempting to remove role {} [{}] from user {}", role.getName(), role.getLongID(), user.getLongID());
+                logger.trace("Attempting to remove role [{}] ({}) from user {}", role.getName(), role.getLongID(), user.getLongID());
                 user.removeRole(role);
             } catch (DiscordException | MissingPermissionsException e) {
                 e.printStackTrace();
             }
-        }).get();
+        });
     }
 
     public void deleteMessage(IMessage message) {
         RequestBuffer.request(() -> {
             try {
-                logger.trace("Attempting to delete message {} in {}", message.getLongID(), message.getChannel().getName());
+                logger.trace("Attempting to delete message {} in #{}", message.getLongID(), message.getChannel().getName());
                 message.delete();
             } catch (DiscordException | MissingPermissionsException e) {
                 e.printStackTrace();
             }
-        }).get();
+        });
     }
 
     public void sendMessage(IChannel channel, String message) {
         RequestBuffer.request(() -> {
             try {
-                logger.trace("Attempting to send '{}' to {}", message, channel.getName());
+                logger.trace("Attempting to send '{}' to #{}", message, channel.getName());
                 channel.sendMessage(message);
             } catch (DiscordException | MissingPermissionsException e) {
                 e.printStackTrace();
             }
-        }).get();
+        });
     }
 
     public void sendMessage(IChannel channel, EmbedObject embed) {
         RequestBuffer.request(() -> {
             try {
-                logger.trace("Attempting to send an embed to {}", channel.getName());
+                logger.trace("Attempting to send an embed to #{}", channel.getName());
                 channel.sendMessage(embed);
             } catch (DiscordException | MissingPermissionsException e) {
                 e.printStackTrace();
             }
-        }).get();
+        });
     }
 
     public void disable(boolean force) {
@@ -148,13 +148,6 @@ public class ClientHandler implements IListener<ReadyEvent> {
             return;
         }
 
-//        if (guild != null) { TODO Fix this
-//            EmbedBuilder builder = new EmbedBuilder();
-//            builder.withDescription(":closed_book: The server has been disabled");
-//            builder.withColor(0xFF5555);
-//            findConfigChannel(ConfigSection.SHUTDOWN_CHANNEL)
-//                    .ifPresent(channel -> sendMessage(channel, builder.build()));
-//        }
         logger.info("Disabling plugin: Read previous output for more information");
         if (!force) {
             client.logout();
