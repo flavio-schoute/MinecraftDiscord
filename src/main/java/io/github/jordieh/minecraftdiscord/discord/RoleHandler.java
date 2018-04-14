@@ -18,6 +18,7 @@
 package io.github.jordieh.minecraftdiscord.discord;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
+import io.github.jordieh.minecraftdiscord.common.UserPair;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -86,8 +87,8 @@ public class RoleHandler {
      * @param uuid The UUID of a player
      * @return true if the role has been given, in all other cases false
      */
-    public boolean giveConnectionRole(UUID uuid) {
-        if (!this.useConnectionRole()) {
+    public boolean giveConnectionRole(UUID uuid, boolean force) {
+        if (!(force && this.useConnectionRole())) {
             return false;
         }
 
@@ -96,23 +97,25 @@ public class RoleHandler {
             return false;
         }
 
-        Optional<Map.Entry<Long, UUID>> entryOptional = LinkHandler.getInstance().getLinkedUser(uuid);
+        UserPair pair = LinkHandler.getInstance().getLinkedUser(uuid);
 
-        if (!entryOptional.isPresent()) {
+        if (pair.isEmpty()) {
             return false;
         }
 
-        long id = entryOptional.get().getKey();
+        Optional<IUser> user = pair.getUser();
 
-        IUser user = ClientHandler.getInstance().getClient().getUserByID(id);
-
-        if (user == null) {
-            LinkHandler.getInstance().unlink(id);
+        if (!user.isPresent()) {
+            LinkHandler.getInstance().unlink(pair.getLeft());
             return false;
         }
 
-        ClientHandler.getInstance().giveRole(optional.get(), user);
+        ClientHandler.getInstance().removeRole(optional.get(), user.get());
         return true;
+    }
+
+    public boolean giveConnectionRole(UUID uuid) {
+        return this.giveConnectionRole(uuid, false);
     }
 
     /**
@@ -128,22 +131,20 @@ public class RoleHandler {
             return false;
         }
 
-        Optional<Map.Entry<Long, UUID>> entryOptional = LinkHandler.getInstance().getLinkedUser(uuid);
+        UserPair pair = LinkHandler.getInstance().getLinkedUser(uuid);
 
-        if (!entryOptional.isPresent()) {
+        if (pair.isEmpty()) {
             return false;
         }
 
-        long id = entryOptional.get().getKey();
+        Optional<IUser> user = pair.getUser();
 
-        IUser user = ClientHandler.getInstance().getClient().getUserByID(id);
-
-        if (user == null) {
-            LinkHandler.getInstance().unlink(id);
+        if (!user.isPresent()) {
+            LinkHandler.getInstance().unlink(pair.getLeft());
             return false;
         }
 
-        ClientHandler.getInstance().removeRole(optional.get(), user);
+        ClientHandler.getInstance().removeRole(optional.get(), user.get());
         return true;
     }
 
@@ -217,25 +218,24 @@ public class RoleHandler {
                     .collect(Collectors.toList());
 
             for (Player player : players) {
-                Optional<Map.Entry<Long, UUID>> optional = LinkHandler.getInstance().getLinkedUser(player.getUniqueId());
-                if (!optional.isPresent()) {
+                UserPair pair = LinkHandler.getInstance().getLinkedUser(player.getUniqueId());
+                if (pair.isEmpty()) {
                     return;
                 }
 
-                Map.Entry<Long, UUID> entry = optional.get();
-                IUser user = ClientHandler.getInstance().getClient().getUserByID(entry.getKey());
-                if (user == null) {
+                Optional<IUser> user = pair.getUser();
+                if (!user.isPresent()) {
                     return;
                 }
 
                 roles.forEach((role, permission) -> {
                     if (player.hasPermission(permission)) {
-                        if (!user.hasRole(role)) {
-                            ClientHandler.getInstance().giveRole(role, user);
+                        if (!user.get().hasRole(role)) {
+                            ClientHandler.getInstance().giveRole(role, user.get());
                         }
                     } else {
-                        if (user.hasRole(role)) {
-                            ClientHandler.getInstance().removeRole(role, user);
+                        if (user.get().hasRole(role)) {
+                            ClientHandler.getInstance().removeRole(role, user.get());
                         }
                     }
                 });

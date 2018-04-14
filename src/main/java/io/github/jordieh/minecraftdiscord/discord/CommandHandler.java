@@ -46,22 +46,15 @@ public class CommandHandler {
         this.executorMap.put("link", new LinkCommand());
         this.executorMap.put("unlink", new UnlinkCommand());
         this.executorMap.put("minecraftdiscord", new InfoCommand());
-        this.executorMap.put("eval", (event, channel, message, author, args) -> {
-            System.out.println(" \t<--------------------------->");
-            for (Thread thread : Thread.getAllStackTraces().keySet()) {
-                System.out.println(" - " + thread.getId() + " (" + thread.getName() + ")");
-            }
-            System.out.println(" \t<--------------------------->");
-        });
 
         FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
         this.prefix = configuration.getString("options.prefix", "/");
-        this.logger.debug("Command prefix has been configured as {}" + this.prefix);
+        this.logger.debug("Command prefix has been configured as {}", this.prefix);
 
         this.stringMap = configuration.getConfigurationSection("command-execution").getValues(false)
                 .entrySet()
                 .stream()
-                .peek(e -> this.logger.trace("Registering custom command {} with response {}", e.getKey(), e.getValue()))
+                .peek(e -> this.logger.trace("Registered custom command {} with response {}", e.getKey(), e.getValue()))
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
     }
 
@@ -77,8 +70,7 @@ public class CommandHandler {
         }
 
         String[] args = event.getMessage().getContent().split(" ");
-
-        String command = args[0];
+        String command = args[0].replace(this.prefix, "");
 
         if (this.executorMap.containsKey(command)) {
             this.logger.debug("Attempting to execute command {} in channel #{}", command, event.getChannel().getName());
@@ -89,7 +81,7 @@ public class CommandHandler {
         if (this.stringMap.containsKey(command)) {
             this.logger.debug("Attempting to execute custom command {} in channel #{}", command, event.getChannel().getName());
             ClientHandler.getInstance().deleteMessage(event.getMessage());
-            ClientHandler.getInstance().sendMessage(event.getChannel(), this.stringMap.get(command));
+            event.getMessage().reply(this.stringMap.get(command));
             return true;
         }
 

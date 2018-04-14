@@ -23,6 +23,8 @@ import org.bukkit.ChatColor;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class FormatUtil {
@@ -35,11 +37,21 @@ public class FormatUtil {
                 .stream()
                 .filter(e -> e.getValue() instanceof String)
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
+        pattern = Pattern.compile("(?<text>[\\S ]*)");
     }
 
     private static Map<String, String> regexMap;
+    private static Pattern pattern; // Conversion pattern to prevent return and newlines from Discord
 
     public static String formatRegex(String s) {
+        StringBuilder builder = new StringBuilder();
+        Matcher matcher = pattern.matcher(s);
+
+        while (matcher.find()) {
+            builder.append(matcher.group("text"));
+        }
+
+        s = builder.toString();
         for (Map.Entry<String, String> entry : regexMap.entrySet()) {
             s = s.replaceAll(entry.getKey(), entry.getValue());
         }

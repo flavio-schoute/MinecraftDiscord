@@ -22,6 +22,7 @@ import io.github.jordieh.minecraftdiscord.command.LinkCommand;
 import io.github.jordieh.minecraftdiscord.command.UnlinkCommand;
 import io.github.jordieh.minecraftdiscord.dependencies.DependencyHandler;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
+import io.github.jordieh.minecraftdiscord.discord.CommandHandler;
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
 import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.AsyncPlayerChatListener;
@@ -100,6 +101,7 @@ public final class MinecraftDiscord extends JavaPlugin {
         LinkHandler.getInstance();
         MetricsHandler.getInstance();
         ChannelHandler.getInstance();
+        CommandHandler.getInstance();
         DependencyHandler.getInstance();
 
         RoleHandler.getInstance().clearConnectionUsers(true);

@@ -17,6 +17,7 @@
 
 package io.github.jordieh.minecraftdiscord.discord;
 
+import io.github.jordieh.minecraftdiscord.common.UserPair;
 import io.github.jordieh.minecraftdiscord.configuration.PluginConfiguration;
 import lombok.NonNull;
 import org.slf4j.Logger;
@@ -25,12 +26,11 @@ import sx.blah.discord.handle.obj.IUser;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-public class LinkHandler {
+public final class LinkHandler {
 
     private final Logger logger = LoggerFactory.getLogger(LinkHandler.class);
 
@@ -85,11 +85,6 @@ public class LinkHandler {
         return this.linkMap.containsKey(user.getLongID());
     }
 
-    @Deprecated
-    public boolean isLinked(@NonNull long id) {
-        return this.linkMap.containsKey(id);
-    }
-
     public String getUserUUIDString(@NonNull IUser user) {
         try {
             return linkMap.get(user.getLongID()).toString();
@@ -98,29 +93,21 @@ public class LinkHandler {
         }
     }
 
-    @Deprecated
-    public UUID getUserUUID(@NonNull IUser user) {
-        try {
-            return linkMap.get(user.getLongID());
-        } catch (NullPointerException e) {
-            return UUID.randomUUID();
-        }
-    }
-
-    public Optional<Map.Entry<Long, UUID>> getLinkedUser(@NonNull UUID uuid) {
+    public UserPair getLinkedUser(@NonNull UUID uuid) {
         return this.linkMap.entrySet().stream()
                 .filter(e -> e.getValue().equals(uuid))
-                .findFirst();
+                .map(e -> new UserPair(e.getKey(), e.getValue()))
+                .findFirst().orElse(new UserPair());
     }
 
-    public Optional<UUID> linkAccount(@NonNull IUser user, @NonNull int code) {
+    public UserPair linkAccount(@NonNull IUser user, @NonNull int code) {
         if (!this.uuidMap.containsKey(code)) {
-            return Optional.empty();
+            return new UserPair();
         }
         UUID uuid = this.uuidMap.get(code);
         this.linkMap.put(user.getLongID(), uuid);
         this.uuidMap.remove(code);
-        return Optional.of(uuid);
+        return new UserPair(user.getLongID(), uuid);
     }
 
     public int generateCode(@NonNull UUID uuid) {
@@ -148,22 +135,21 @@ public class LinkHandler {
         return 100000 + ((int) (ThreadLocalRandom.current().nextFloat() * 900000.0f));
     }
 
-    public Optional<UUID> unlink(@NonNull UUID uuid) {
-        Optional<Map.Entry<Long, UUID>> optional = this.getLinkedUser(uuid);
-        if (optional.isPresent()) {
-            this.linkMap.remove(optional.get().getKey());
-            return Optional.of(optional.get().getValue());
+    public UserPair unlink(@NonNull UUID uuid) {
+        UserPair pair = this.getLinkedUser(uuid);
+        if (!pair.isEmpty()) {
+            this.linkMap.remove(pair.getLeft());
+            return pair;
         }
-        return Optional.empty();
+        return new UserPair();
     }
 
-    public Optional<UUID> unlink(@NonNull long id) {
+    public UserPair unlink(@NonNull long id) {
         if (!this.linkMap.containsKey(id)) {
             UUID temp = this.linkMap.get(id);
-            linkMap.remove(id);
-            return Optional.of(temp);
+            this.linkMap.remove(id);
+            return new UserPair(id, temp);
         }
-        return Optional.empty();
+        return new UserPair();
     }
-
 }

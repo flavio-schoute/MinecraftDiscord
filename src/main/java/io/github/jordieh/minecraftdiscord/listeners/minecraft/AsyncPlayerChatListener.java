@@ -37,7 +37,7 @@ package io.github.jordieh.minecraftdiscord.listeners.minecraft;
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
-import io.github.jordieh.minecraftdiscord.util.MessageType;
+import io.github.jordieh.minecraftdiscord.common.MessageType;
 import io.github.jordieh.minecraftdiscord.world.ChannelHandler;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;

@@ -51,13 +51,12 @@ public class MessageReceivedEventHandler extends Translatable implements IListen
         if (CommandHandler.getInstance().handleExecution(event)) {
             return;
         }
-
         if (!ChannelHandler.getInstance().getLongMap().containsValue(channel.getLongID())) {
             return;
         }
 
         if (MinecraftDiscord.getInstance().getConfig().getBoolean("options.require-linking")) {
-            if (!LinkHandler.getInstance().isLinked(author.getLongID())) {
+            if (!LinkHandler.getInstance().isLinked(author)) {
                 return;
             }
         }

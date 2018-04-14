@@ -15,13 +15,31 @@
  *     along with MinecraftDiscord.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.github.jordieh.minecraftdiscord.util;
+package io.github.jordieh.minecraftdiscord.common;
 
-public enum MessageType {
+import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import sx.blah.discord.handle.obj.IUser;
 
-    MESSAGE,
-    WEBHOOK,
-    EMBED,
-    EMBED_ADVANCED
+import java.util.Optional;
+import java.util.UUID;
 
+public class UserPair extends Pair<Long, UUID> {
+
+    public UserPair(Long left, UUID right) {
+        super(left, right);
+    }
+
+    public UserPair() {
+        super();
+    }
+
+    public final Optional<IUser> getUser() {
+        return Optional.ofNullable(ClientHandler.getInstance().getClient().getUserByID(super.getLeft()));
+    }
+
+    public final OfflinePlayer getPlayer() {
+        return Bukkit.getOfflinePlayer(super.getRight());
+    }
 }

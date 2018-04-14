@@ -15,31 +15,43 @@
  *     along with MinecraftDiscord.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.github.jordieh.minecraftdiscord.util;
+package io.github.jordieh.minecraftdiscord.common;
 
 import lombok.Getter;
+
+import java.util.Objects;
 
 public class Pair<L, R> {
 
     @Getter private final L left;
     @Getter private final R right;
 
+    @Getter private final boolean isEmpty;
+
     public Pair(L left, R right) {
         this.left = left;
         this.right = right;
+        this.isEmpty = (left == null) && (right == null);
+    }
+
+    public Pair() {
+        this(null, null);
     }
 
     @Override
     public int hashCode() {
-        return left.hashCode() ^ right.hashCode();
+        return Objects.hashCode(left) ^ Objects.hashCode(right);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Pair)) {
-            return false;
+        if (obj == this) {
+            return true;
         }
-        Pair pair = (Pair) obj;
-        return this.left.equals(pair.left) && this.right.equals(pair.right);
+        if (obj instanceof Pair) {
+            Pair pair = (Pair) obj;
+            return Objects.equals(this.left, pair.getLeft()) && Objects.equals(this.right, pair.getRight());
+        }
+        return false;
     }
 }

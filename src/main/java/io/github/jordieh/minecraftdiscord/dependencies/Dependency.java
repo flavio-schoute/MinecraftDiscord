@@ -34,7 +34,7 @@
 
 package io.github.jordieh.minecraftdiscord.dependencies;
 
-import io.github.jordieh.minecraftdiscord.util.Pair;
+import io.github.jordieh.minecraftdiscord.common.Pair;
 import lombok.NonNull;
 
 public enum Dependency {

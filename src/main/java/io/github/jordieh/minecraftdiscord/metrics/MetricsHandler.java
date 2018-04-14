@@ -19,7 +19,6 @@ package io.github.jordieh.minecraftdiscord.metrics;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
 import lombok.NonNull;
-import org.bstats.bukkit.Metrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
