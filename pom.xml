@@ -56,10 +56,6 @@
                         </goals>
                         <configuration>
                             <relocations>
-                                <relocation>
-                                    <pattern>org.bstats</pattern>
-                                    <shadedPattern>io.github.jordieh.bstats</shadedPattern>
-                                </relocation>
                             </relocations>
                             <minimizeJar>true</minimizeJar>
                             <filters>
@@ -98,10 +94,6 @@
         <repository> <!-- Repository for Discord4J -->
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
-        </repository>
-        <repository> <!-- bStats -->
-            <id>bstats-repo</id>
-            <url>http://repo.bstats.org/content/repositories/releases/</url>
         </repository>
         <repository> <!-- SuperVanish & PremiumVanish -->
             <id>cubekrowd-repo</id>
@@ -148,11 +140,6 @@
             <groupId>com.mashape.unirest</groupId>
             <artifactId>unirest-java</artifactId>
             <version>1.4.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bstats</groupId>
-            <artifactId>bstats-bukkit</artifactId>
-            <version>1.2</version>
         </dependency>
         <dependency> <!-- SuperVanish & PremiumVanish -->
             <groupId>de.myzelyam</groupId>

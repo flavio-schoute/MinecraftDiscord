@@ -23,6 +23,8 @@ import io.github.jordieh.minecraftdiscord.discord.command.InfoCommand;
 import io.github.jordieh.minecraftdiscord.discord.command.LinkCommand;
 import io.github.jordieh.minecraftdiscord.discord.command.UnlinkCommand;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 
 import java.util.HashMap;
@@ -30,6 +32,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommandHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
     private static CommandHandler instance;
 
@@ -51,11 +55,13 @@ public class CommandHandler {
         });
 
         FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
-        this.prefix = configuration.getString("options.prefix");
+        this.prefix = configuration.getString("options.prefix", "/");
+        this.logger.debug("Command prefix has been configured as {}" + this.prefix);
 
         this.stringMap = configuration.getConfigurationSection("command-execution").getValues(false)
                 .entrySet()
                 .stream()
+                .peek(e -> this.logger.trace("Registering custom command {} with response {}", e.getKey(), e.getValue()))
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
     }
 
@@ -75,11 +81,13 @@ public class CommandHandler {
         String command = args[0];
 
         if (this.executorMap.containsKey(command)) {
+            this.logger.debug("Attempting to execute command {} in channel #{}", command, event.getChannel().getName());
             this.executorMap.get(command).execute(event, event.getChannel(), event.getMessage(), event.getAuthor(), args);
             return true;
         }
 
         if (this.stringMap.containsKey(command)) {
+            this.logger.debug("Attempting to execute custom command {} in channel #{}", command, event.getChannel().getName());
             ClientHandler.getInstance().deleteMessage(event.getMessage());
             ClientHandler.getInstance().sendMessage(event.getChannel(), this.stringMap.get(command));
             return true;
