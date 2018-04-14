@@ -17,6 +17,8 @@
 
 package io.github.jordieh.minecraftdiscord.discord.command;
 
+import io.github.jordieh.minecraftdiscord.api.ConnectionRoute;
+import io.github.jordieh.minecraftdiscord.api.events.PlayerAccountLinkEvent;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
 import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
@@ -83,6 +85,7 @@ public class LinkCommand extends Translatable implements CommandExecutor {
             return;
         }
 
+        Bukkit.getPluginManager().callEvent(new PlayerAccountLinkEvent(optional.get(), author, ConnectionRoute.DISCORD));
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(optional.get());
 
         EmbedBuilder builder = new EmbedBuilder();

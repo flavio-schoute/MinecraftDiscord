@@ -23,6 +23,7 @@ import de.robingrether.idisguise.api.OfflinePlayerUndisguiseEvent;
 import de.robingrether.idisguise.api.UndisguiseEvent;
 import de.robingrether.idisguise.disguise.Disguise;
 import io.github.jordieh.minecraftdiscord.dependencies.Dependency;
+import io.github.jordieh.minecraftdiscord.dependencies.DependencyListener;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
 import io.github.jordieh.minecraftdiscord.world.ChannelHandler;
@@ -31,18 +32,15 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.EmbedBuilder;
 
 import java.util.Optional;
 
-public class IDisguiseListener implements Listener {
-
-    private final Dependency dependency;
+public class IDisguiseListener extends DependencyListener {
 
     public IDisguiseListener() {
-        this.dependency = Dependency.IDISGUISE;
+        super(Dependency.IDISGUISE);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -55,6 +53,10 @@ public class IDisguiseListener implements Listener {
         Disguise disguise = event.getDisguise();
         Player player = event.getPlayer();
 
+        if (disguise.getType() == null) {
+            return;
+        }
+
         String name = WordUtils.capitalize(disguise.getType().getDefaultCommandArgument().replace("_", " "));
 
         EmbedBuilder builder = new EmbedBuilder();
@@ -63,7 +65,7 @@ public class IDisguiseListener implements Listener {
         builder.withColor(0xFFAA00);
         builder.withDescription(player.getName() + " has disguised into a " + name + "!");
         builder.withTimestamp(System.currentTimeMillis());
-        builder.withFooterText(this.dependency.getName());
+        builder.withFooterText(super.dependency.getName());
         builder.withFooterIcon("https://jordieh.github.io/MinecraftDiscord/idisguise/" + event.getDisguise().getType().getDefaultCommandArgument() + ".png");
 
         ClientHandler.getInstance().sendMessage(channel.get(), builder.build());
@@ -79,6 +81,10 @@ public class IDisguiseListener implements Listener {
         Disguise disguise = event.getDisguise();
         OfflinePlayer offlinePlayer = event.getPlayer();
 
+        if (disguise.getType() == null) {
+            return;
+        }
+
         String name = WordUtils.capitalize(disguise.getType().getDefaultCommandArgument().replace("_", " "));
 
         EmbedBuilder builder = new EmbedBuilder();
@@ -87,7 +93,7 @@ public class IDisguiseListener implements Listener {
         builder.withColor(0xFFAA00);
         builder.withDescription(offlinePlayer.getName() + " has disguised into a " + name + " while offline!");
         builder.withTimestamp(System.currentTimeMillis());
-        builder.withFooterText(this.dependency.getName());
+        builder.withFooterText(super.dependency.getName());
         builder.withFooterIcon("https://jordieh.github.io/MinecraftDiscord/idisguise/" + event.getDisguise().getType().getDefaultCommandArgument() + ".png");
 
         ClientHandler.getInstance().sendMessage(channel.get(), builder.build());
@@ -103,6 +109,10 @@ public class IDisguiseListener implements Listener {
         Disguise disguise = event.getDisguise();
         Player player = event.getPlayer();
 
+        if (disguise.getType() == null) {
+            return;
+        }
+
         String name = WordUtils.capitalize(disguise.getType().getDefaultCommandArgument().replace("_", " "));
 
         EmbedBuilder builder = new EmbedBuilder();
@@ -111,7 +121,7 @@ public class IDisguiseListener implements Listener {
         builder.withColor(0xFF5555);
         builder.withDescription(player.getName() + " has undisguised from a " + name + "!");
         builder.withTimestamp(System.currentTimeMillis());
-        builder.withFooterText(this.dependency.getName());
+        builder.withFooterText(super.dependency.getName());
         builder.withFooterIcon("https://jordieh.github.io/MinecraftDiscord/idisguise/" + event.getDisguise().getType().getDefaultCommandArgument() + ".png");
 
         ClientHandler.getInstance().sendMessage(channel.get(), builder.build());
@@ -127,6 +137,10 @@ public class IDisguiseListener implements Listener {
         Disguise disguise = event.getDisguise();
         OfflinePlayer offlinePlayer = event.getPlayer();
 
+        if (disguise.getType() == null) {
+            return;
+        }
+
         String name = WordUtils.capitalize(disguise.getType().getDefaultCommandArgument().replace("_", " "));
 
         EmbedBuilder builder = new EmbedBuilder();
@@ -135,7 +149,7 @@ public class IDisguiseListener implements Listener {
         builder.withColor(0xFF5555);
         builder.withDescription(offlinePlayer.getName() + " has undisguised from a " + name + " while offline!");
         builder.withTimestamp(System.currentTimeMillis());
-        builder.withFooterText(this.dependency.getName());
+        builder.withFooterText(super.dependency.getName());
         builder.withFooterIcon("https://jordieh.github.io/MinecraftDiscord/idisguise/" + event.getDisguise().getType().getDefaultCommandArgument() + ".png");
 
         ClientHandler.getInstance().sendMessage(channel.get(), builder.build());

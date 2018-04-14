@@ -65,6 +65,7 @@ public class LangUtil {
         languageBundle = resourceBundle;
         formatMap = new HashMap<>();
 
+        updateLocale(MinecraftDiscord.getInstance().getConfig().getString("options.language"));
 
     }
 
@@ -111,7 +112,7 @@ public class LangUtil {
 
         ResourceBundle.clearCache();
         formatMap.clear();
-        logger.info("Now using language {}", locale.toString());
+        logger.info("Current translation locale: {}", locale.toString());
 
         try { //@TODO ++
             languageBundle = ResourceBundle.getBundle(MESSAGES, locale, loader);
@@ -130,7 +131,7 @@ public class LangUtil {
     private static final class TranslationLoader extends ClassLoader {
         private final File DATAFOLDER;
 
-        public TranslationLoader(ClassLoader parent) {
+        TranslationLoader(ClassLoader parent) {
             super(parent);
             DATAFOLDER = MinecraftDiscord.getInstance().getDataFolder();
         }

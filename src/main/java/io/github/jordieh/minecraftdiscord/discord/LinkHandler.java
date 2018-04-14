@@ -117,7 +117,6 @@ public class LinkHandler {
         if (!this.uuidMap.containsKey(code)) {
             return Optional.empty();
         }
-
         UUID uuid = this.uuidMap.get(code);
         this.linkMap.put(user.getLongID(), uuid);
         this.uuidMap.remove(code);

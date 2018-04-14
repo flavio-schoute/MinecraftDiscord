@@ -26,7 +26,7 @@ options:
   linking-enabled: true
   truncation-size: 256
   message-render: https://visage.surgeplay.com/head/128/<uuid>
-  message-type: embed
+  message-type: embed_advanced
   language: en
   prefix: /
 #  blocked-users:

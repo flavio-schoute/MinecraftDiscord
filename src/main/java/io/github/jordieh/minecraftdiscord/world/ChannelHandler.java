@@ -64,6 +64,7 @@ public final class ChannelHandler {
 
     public Optional<IChannel> getIntegrationChannel(@NonNull String name, @NonNull Dependency dependency) {
         String channel = dependency.getName() + "@" + name;
+        logger.debug("Attempting to retrieve integration channel {}", channel);
         if (!this.integrationMap.containsKey(channel)) {
             return Optional.empty();
         }
@@ -71,9 +72,14 @@ public final class ChannelHandler {
     }
 
     public Optional<IChannel> getConnectedChannel(@NonNull String name) {
+        logger.debug("Attempting to retrieve connected channel {}", name);
         if (!this.longMap.containsKey(name)) {
             return Optional.empty();
         }
         return Optional.ofNullable(ClientHandler.getInstance().getClient().getChannelByID(this.longMap.get(name)));
+    }
+
+    public Optional<IChannel> getGlobalChannel() {
+        return getConnectedChannel("global");
     }
 }

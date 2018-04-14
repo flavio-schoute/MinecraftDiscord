@@ -44,7 +44,9 @@ public enum Dependency {
     PREMIUMVANISH("PremiumVanish", "https://www.spigotmc.org/data/resource_icons/14/14404.jpg?1447087910"),
     SUPERVANISH("SuperVanish", "https://www.spigotmc.org/data/resource_icons/1/1331.jpg?141236592"),
     VANISHNOPACKET("VanishNoPacket", "https://media.forgecdn.net/avatars/65/903/636163044899797953.png"),
-    IDISGUISE("iDisguise", "https://www.spigotmc.org/data/resource_icons/5/5509.jpg?1483142473");
+    @Deprecated EMPTY("null", "null"),
+    IDISGUISE("iDisguise", "https://www.spigotmc.org/data/resource_icons/5/5509.jpg?1483142473"),
+    ESSENTIALSX("Essentials", "https://www.spigotmc.org/data/resource_icons/9/9089.jpg?1468342131");
 
     public final Pair<String, String> pair;
 

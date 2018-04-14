@@ -23,19 +23,19 @@ import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
 import io.github.jordieh.minecraftdiscord.world.ChannelHandler;
+import net.ess3.api.events.VanishStatusChangeEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.kitteh.vanish.event.VanishStatusChangeEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.EmbedBuilder;
 
 import java.util.Optional;
 
-public class VanishNoPacketListener extends DependencyListener {
+public class EssentialsXListener extends DependencyListener {
 
-    public VanishNoPacketListener() {
-        super(Dependency.VANISHNOPACKET);
+    public EssentialsXListener() {
+        super(Dependency.ESSENTIALSX);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -45,9 +45,9 @@ public class VanishNoPacketListener extends DependencyListener {
             return;
         }
 
-        Player player = event.getPlayer();
+        Player player = event.getController().getBase();
 
-        if (event.isVanishing()) {
+        if (event.getValue()) {
             RoleHandler.getInstance().removeConnectionRole(player.getUniqueId());
 
             EmbedBuilder builder = new EmbedBuilder();
@@ -75,6 +75,4 @@ public class VanishNoPacketListener extends DependencyListener {
             ClientHandler.getInstance().sendMessage(channel.get(), builder.build());
         }
     }
-
-
 }

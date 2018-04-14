@@ -64,8 +64,6 @@ public final class MinecraftDiscord extends JavaPlugin {
     @Override
     public void onEnable() {
         startup = System.currentTimeMillis();
-        logger.error("dfgdf", new NullPointerException("dfgdfgdfgdfgfdg fd gdfg"));
-
         instance = this;
 
         logger.debug("Saving default configuration");

@@ -20,14 +20,16 @@ package io.github.jordieh.minecraftdiscord.listeners.minecraft;
 import io.github.jordieh.minecraftdiscord.dependencies.DependencyHandler;
 import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PlayerJoinListener implements Listener {
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (!DependencyHandler.getInstance().isVanished(event.getPlayer())) {
+            System.out.println("Player " +event.getPlayer().getName() + " is currently vanished");
             RoleHandler.getInstance().giveConnectionRole(event.getPlayer().getUniqueId());
         }
     }

@@ -32,16 +32,15 @@ public class MetricsHandler {
     private Metrics metrics;
 
     private MetricsHandler() {
-        logger.debug("Constructing MetricsHandler");
-        metrics = new Metrics(MinecraftDiscord.getInstance());
+        this.logger.debug("Initializing MetricsHandler (@{} epoch)", (System.currentTimeMillis() / 1000L));
+        this.metrics = new Metrics(MinecraftDiscord.getInstance());
 
-        registerSimplePie("message_type", "options.message-type", "embed");
-        registerSimplePie("account_linking", "options.linking-enabled", "true");
-        registerSimplePie("playing_role", "connection-role.enabled", "false");
-        registerSimplePie("presence_enabled", "presence.enabled", "false");
-        registerSimplePie("presence_status", "presence.status", "online");
-        registerSimplePie("presence_activity", "presence.activity", "playing");
-
+        this.registerSimplePie("message_type", "options.message-type", "embed_advanced");
+        this.registerSimplePie("account_linking", "options.linking-enabled", "true");
+        this.registerSimplePie("playing_role", "connection-role.enabled", "false");
+        this.registerSimplePie("presence_enabled", "presence.enabled", "false");
+        this.registerSimplePie("presence_status", "presence.status", "online");
+        this.registerSimplePie("presence_activity", "presence.activity", "playing");
     }
 
     public static MetricsHandler getInstance() {
@@ -49,7 +48,8 @@ public class MetricsHandler {
     }
 
     private void registerSimplePie(@NonNull String id, @NonNull String path, @NonNull String def) {
-        String s = MinecraftDiscord.getInstance().getConfig().getString(path, def).toLowerCase();
-        this.metrics.addCustomChart(new Metrics.SimplePie(id, () -> s));
+        this.metrics.addCustomChart(new Metrics.SimplePie(id, () ->
+                MinecraftDiscord.getInstance().getConfig().getString(path, def).toLowerCase()));
+        this.logger.trace("Registered Simple Pie chart with id {} and default \"{}\" ({})", id, def, path);
     }
 }

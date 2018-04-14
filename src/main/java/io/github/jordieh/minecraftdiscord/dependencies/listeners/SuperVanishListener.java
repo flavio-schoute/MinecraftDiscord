@@ -20,6 +20,7 @@ package io.github.jordieh.minecraftdiscord.dependencies.listeners;
 import de.myzelyam.api.vanish.PlayerHideEvent;
 import de.myzelyam.api.vanish.PlayerShowEvent;
 import io.github.jordieh.minecraftdiscord.dependencies.Dependency;
+import io.github.jordieh.minecraftdiscord.dependencies.DependencyListener;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
@@ -28,7 +29,6 @@ import lombok.NonNull;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.EmbedBuilder;
 
@@ -37,12 +37,10 @@ import java.util.Optional;
 /**
  * Integration for SuperVanish & PremiumVanish
  */
-public class SuperVanishListener implements Listener {
-
-    private final Dependency dependency;
+public class SuperVanishListener extends DependencyListener {
 
     public SuperVanishListener(@NonNull Dependency dependency) {
-        this.dependency = dependency;
+        super(dependency);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -64,8 +62,8 @@ public class SuperVanishListener implements Listener {
         builder.withColor(0xFFAA00);
         builder.withDescription(player.getName() + " has vanished" + s + "!");
         builder.withTimestamp(System.currentTimeMillis());
-        builder.withFooterText(this.dependency.getName());
-        builder.withFooterIcon(this.dependency.getIcon());
+        builder.withFooterText(super.dependency.getName());
+        builder.withFooterIcon(super.dependency.getIcon());
 
         ClientHandler.getInstance().sendMessage(channel.get(), builder.build());
     }
@@ -89,8 +87,8 @@ public class SuperVanishListener implements Listener {
         builder.withColor(0x00AA00);
         builder.withDescription(player.getName() + " has appeared" + s + "!");
         builder.withTimestamp(System.currentTimeMillis());
-        builder.withFooterText(this.dependency.getName());
-        builder.withFooterIcon(this.dependency.getIcon());
+        builder.withFooterText(super.dependency.getName());
+        builder.withFooterIcon(super.dependency.getIcon());
 
         ClientHandler.getInstance().sendMessage(channel.get(), builder.build());
     }

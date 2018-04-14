@@ -36,17 +36,16 @@ package io.github.jordieh.minecraftdiscord.listeners.minecraft;
 
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
-import io.github.jordieh.minecraftdiscord.discord.WebhookHandler;
+import io.github.jordieh.minecraftdiscord.util.FormatUtil;
 import io.github.jordieh.minecraftdiscord.util.MessageType;
 import io.github.jordieh.minecraftdiscord.world.ChannelHandler;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.plugin.Plugin;
 import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IWebhook;
 import sx.blah.discord.util.EmbedBuilder;
 
 import java.util.Optional;
@@ -55,55 +54,69 @@ public class AsyncPlayerChatListener implements Listener {
 
     @EventHandler
     public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
-        Plugin plugin = MinecraftDiscord.getInstance();
-        FileConfiguration configuration = plugin.getConfig();
+        FileConfiguration configuration = MinecraftDiscord.getInstance().getConfig();
+
         MessageType messageType;
         try {
             messageType = MessageType.valueOf(configuration.getString("options.message-type").toUpperCase());
+            if (messageType == MessageType.WEBHOOK) {
+                messageType = MessageType.EMBED_ADVANCED;
+            }
         } catch (IllegalArgumentException e) {
             messageType = MessageType.MESSAGE;
         }
 
-        // TODO Channels per world
         Player player = event.getPlayer();
-        if (!ChannelHandler.getInstance().getLongMap().containsKey(event.getPlayer().getWorld().getName())) {
-            return;
-        }
+        World world = player.getWorld();
 
-        Optional<IChannel> channelOptional = ChannelHandler.getInstance().getConnectedChannel(player.getWorld().getName());
-        if (!channelOptional.isPresent()) return;
-
-        IChannel channel = channelOptional.get();
+        Optional<IChannel> specific = ChannelHandler.getInstance().getConnectedChannel(world.getName());
+        Optional<IChannel> global = ChannelHandler.getInstance().getGlobalChannel();
 
         switch (messageType) {
             case MESSAGE: {
-                ClientHandler.getInstance().sendMessage(channel, String.format("%s: %s", player.getName(), event.getMessage()));
+                specific.ifPresent(channel ->
+                    ClientHandler.getInstance().sendMessage(channel, String.format("%s: %s", player.getName(), event.getMessage())));
+                global.ifPresent(channel ->
+                    ClientHandler.getInstance().sendMessage(channel, String.format("%s: %s", player.getName(), event.getMessage())));
                 break;
             }
             case EMBED: {
-                String avatarUrl = plugin.getConfig().getString("options.message-render")
-                        .replace("<uuid>", player.getUniqueId().toString());
-
                 EmbedBuilder builder = new EmbedBuilder();
                 builder.withDescription(event.getMessage());
                 builder.withAuthorName(player.getName());
-                builder.withAuthorIcon(avatarUrl);
-                ClientHandler.getInstance().sendMessage(channel, builder.build());
-                break;
-            }
-            case WEBHOOK: {
-                String avatarUrl = plugin.getConfig().getString("options.message-render")
-                        .replace("<uuid>", player.getUniqueId().toString());
+                builder.withAuthorIcon(FormatUtil.avatarUrl(player.getUniqueId().toString()));
 
-                IWebhook webhook = WebhookHandler.getInstance().getWebhook(player.getWorld());
-                WebhookHandler.getInstance().sendWebhook(
-                        webhook,
-                        player.getName(),
-                        event.getMessage(),
-                        avatarUrl
-                );
+                specific.ifPresent(channel ->
+                        ClientHandler.getInstance().sendMessage(channel, builder.build()));
+                global.ifPresent(channel ->
+                        ClientHandler.getInstance().sendMessage(channel, builder.build()));
                 break;
             }
+            case EMBED_ADVANCED: {
+                EmbedBuilder builder = new EmbedBuilder();
+                builder.withDescription(event.getMessage());
+                builder.withAuthorName(player.getName());
+                builder.withThumbnail(FormatUtil.avatarUrl(player.getUniqueId().toString()));
+
+                specific.ifPresent(channel ->
+                    ClientHandler.getInstance().sendMessage(channel, builder.build()));
+                global.ifPresent(channel ->
+                    ClientHandler.getInstance().sendMessage(channel, builder.build()));
+                break;
+            }
+//            case WEBHOOK: {
+//                String avatarUrl = plugin.getConfig().getString("options.message-render")
+//                        .replace("<uuid>", player.getUniqueId().toString());
+//
+//                IWebhook webhook = WebhookHandler.getInstance().getWebhook(player.getWorld());
+//                WebhookHandler.getInstance().sendWebhook(
+//                        webhook,
+//                        player.getName(),
+//                        event.getMessage(),
+//                        avatarUrl
+//                );
+//                break;
+//            }
             default: {
                 // Should never technically happen
                 break;

@@ -23,6 +23,7 @@ import io.github.jordieh.minecraftdiscord.discord.CommandHandler;
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
 import io.github.jordieh.minecraftdiscord.util.Translatable;
+import io.github.jordieh.minecraftdiscord.world.ChannelHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import sx.blah.discord.api.events.IListener;
@@ -48,6 +49,10 @@ public class MessageReceivedEventHandler extends Translatable implements IListen
         }
 
         if (CommandHandler.getInstance().handleExecution(event)) {
+            return;
+        }
+
+        if (!ChannelHandler.getInstance().getLongMap().containsValue(channel.getLongID())) {
             return;
         }
 

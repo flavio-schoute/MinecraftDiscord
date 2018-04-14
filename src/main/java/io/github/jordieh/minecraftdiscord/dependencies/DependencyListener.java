@@ -15,13 +15,21 @@
  *     along with MinecraftDiscord.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.github.jordieh.minecraftdiscord.util;
+package io.github.jordieh.minecraftdiscord.dependencies;
 
-public enum MessageType {
+import lombok.NonNull;
+import org.bukkit.event.Listener;
 
-    MESSAGE,
-    WEBHOOK,
-    EMBED,
-    EMBED_ADVANCED
+public class DependencyListener implements Listener {
 
+    public final Dependency dependency;
+
+    @SuppressWarnings("deprecation")
+    public DependencyListener() {
+        this(Dependency.EMPTY);
+    }
+
+    public DependencyListener(@NonNull Dependency dependency) {
+        this.dependency = dependency;
+    }
 }

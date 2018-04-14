@@ -60,7 +60,7 @@ public class UnlinkCommand extends Translatable implements CommandExecutor {
             return true;
         }
 
-        LinkHandler.getInstance().unlink(player.getUniqueId());
+        LinkHandler.getInstance().unlink(player.getUniqueId()); // TODO PlayerAccountUnlinkEvent
         sender.sendMessage(tr("command.unlink.success"));
         return true;
     }

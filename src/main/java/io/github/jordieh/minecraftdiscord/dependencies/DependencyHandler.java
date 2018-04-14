@@ -17,14 +17,20 @@
 
 package io.github.jordieh.minecraftdiscord.dependencies;
 
+import com.earth2me.essentials.Essentials;
 import io.github.jordieh.minecraftdiscord.MinecraftDiscord;
+import io.github.jordieh.minecraftdiscord.dependencies.listeners.EssentialsXListener;
 import io.github.jordieh.minecraftdiscord.dependencies.listeners.IDisguiseListener;
 import io.github.jordieh.minecraftdiscord.dependencies.listeners.SuperVanishListener;
 import io.github.jordieh.minecraftdiscord.dependencies.listeners.VanishNoPacketListener;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.plugin.Plugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -32,10 +38,14 @@ import java.util.Set;
 
 public class DependencyHandler {
 
+    private final Logger logger = LoggerFactory.getLogger(DependencyHandler.class);
+
     private static DependencyHandler instance;
 
     private Set<Dependency> enabledHooks;
     private List<String> disabledHooks;
+
+    private Essentials essentials;
 
     private DependencyHandler() {
         MinecraftDiscord plugin = MinecraftDiscord.getInstance();
@@ -43,32 +53,22 @@ public class DependencyHandler {
         this.enabledHooks = new HashSet<>();
         this.disabledHooks = plugin.getConfig().getStringList("disabled-dependencies");
 
-        if (isPluginEnabled(Dependency.SUPERVANISH)) {
-            plugin.getServer().getPluginManager().registerEvents(new SuperVanishListener(Dependency.SUPERVANISH), plugin);
-            this.enabledHooks.add(Dependency.SUPERVANISH);
+        this.integrate(Dependency.SUPERVANISH, plugin, new SuperVanishListener(Dependency.SUPERVANISH));
+        this.integrate(Dependency.PREMIUMVANISH, plugin, new SuperVanishListener(Dependency.PREMIUMVANISH));
+        this.integrate(Dependency.VANISHNOPACKET, plugin, new VanishNoPacketListener());
+        this.integrate(Dependency.IDISGUISE, plugin, new IDisguiseListener());
+
+        if (this.integrate(Dependency.ESSENTIALSX, plugin, new EssentialsXListener())) { // TODO: Check if NOT EssentialsX
+            this.essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
         }
 
-        if (isPluginEnabled(Dependency.PREMIUMVANISH)) {
-            plugin.getServer().getPluginManager().registerEvents(new SuperVanishListener(Dependency.PREMIUMVANISH), plugin);
-            this.enabledHooks.add(Dependency.PREMIUMVANISH);
-        }
-
-        if (isPluginEnabled(Dependency.VANISHNOPACKET)) {
-            plugin.getServer().getPluginManager().registerEvents(new VanishNoPacketListener(), plugin);
-            this.enabledHooks.add(Dependency.VANISHNOPACKET);
-        }
-
-        if (isPluginEnabled(Dependency.IDISGUISE)) {
-            plugin.getServer().getPluginManager().registerEvents(new IDisguiseListener(), plugin);
-            this.enabledHooks.add(Dependency.IDISGUISE);
-        }
     }
 
     public static DependencyHandler getInstance() {
         return instance == null ? instance = new DependencyHandler() : instance;
     }
 
-    public boolean isPluginEnabled(@NonNull Dependency dependency) {
+    private boolean isPluginEnabled(@NonNull Dependency dependency) {
         return Bukkit.getPluginManager().isPluginEnabled(dependency.getName()) && !this.disabledHooks.contains(dependency.getName());
     }
 
@@ -77,6 +77,21 @@ public class DependencyHandler {
             if (metadataValue.asBoolean()) {
                 return true;
             }
+        }
+        System.out.println(essentials != null);
+        System.out.println(essentials.getUser(player).isVanished());
+
+        return essentials != null && essentials.getUser(player).isVanished();
+    }
+
+    private boolean integrate(@NonNull Dependency dependency, @NonNull Plugin plugin, Listener listener) {
+        if (this.isPluginEnabled(dependency)) {
+            if (listener != null) {
+                plugin.getServer().getPluginManager().registerEvents(listener, plugin);
+            }
+            this.enabledHooks.add(dependency);
+            logger.info("{} integration enabled", dependency.getName());
+            return true;
         }
         return false;
     }

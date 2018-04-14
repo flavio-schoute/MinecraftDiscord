@@ -17,21 +17,38 @@
 
 package io.github.jordieh.minecraftdiscord.api.events;
 
-//public class PlayerAccountUnLinkEvent extends Event {
-//
-//    @Getter private static final HandlerList handlers = new HandlerList();
-//
-//    @Getter private final ConnectionRoute route;
-//    @Getter private final OfflinePlayer player;
-//    @Getter private final long userID;
-//    @Getter private final IUser user;
-//    @Getter private final Date date;
-//
-//    public PlayerAccountUnLinkEvent(@NonNull UUID uuid, @NonNull IUser user, @NonNull long millis, @NonNull ConnectionRoute route) {
-//        this.route = route;
-//        this.player = Bukkit.getOfflinePlayer(uuid);
-//        this.userID = user.getLongID();
-//        this.user = user;
-//        this.date = new Date(millis);
-//    }
-//}
+import io.github.jordieh.minecraftdiscord.api.ConnectionRoute;
+import lombok.Getter;
+import lombok.NonNull;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+import sx.blah.discord.handle.obj.IUser;
+
+import java.util.Date;
+import java.util.UUID;
+
+public class PlayerAccountUnLinkEvent extends Event {
+
+    private static final HandlerList handlers = new HandlerList();
+
+    @Getter private final ConnectionRoute route;
+    @Getter private final OfflinePlayer player;
+    @Getter private final long userID;
+    @Getter private final IUser user;
+    @Getter private final Date date;
+
+    public PlayerAccountUnLinkEvent(@NonNull UUID uuid, @NonNull IUser user, @NonNull ConnectionRoute route) {
+        this.route = route;
+        this.player = Bukkit.getOfflinePlayer(uuid);
+        this.userID = user.getLongID();
+        this.user = user;
+        this.date = new Date(System.currentTimeMillis());
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return handlers;
+    }
+}

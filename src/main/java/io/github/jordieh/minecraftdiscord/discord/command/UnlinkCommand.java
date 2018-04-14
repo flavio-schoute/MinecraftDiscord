@@ -17,6 +17,8 @@
 
 package io.github.jordieh.minecraftdiscord.discord.command;
 
+import io.github.jordieh.minecraftdiscord.api.ConnectionRoute;
+import io.github.jordieh.minecraftdiscord.api.events.PlayerAccountUnLinkEvent;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
@@ -41,6 +43,8 @@ public class UnlinkCommand extends Translatable implements CommandExecutor {
         Optional<UUID> optional = linkHandler.unlink(author.getLongID());
 
         if (optional.isPresent()) {
+            Bukkit.getPluginManager().callEvent(new PlayerAccountUnLinkEvent(optional.get(), author, ConnectionRoute.DISCORD));
+
             String s = optional.get().toString();
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(optional.get());
 
