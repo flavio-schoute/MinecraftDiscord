@@ -19,6 +19,7 @@ package io.github.jordieh.minecraftdiscord.discord.command;
 
 import io.github.jordieh.minecraftdiscord.api.ConnectionRoute;
 import io.github.jordieh.minecraftdiscord.api.events.PlayerAccountLinkEvent;
+import io.github.jordieh.minecraftdiscord.common.UserPair;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
 import io.github.jordieh.minecraftdiscord.discord.RoleHandler;
@@ -33,8 +34,6 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.EmbedBuilder;
 
-import java.util.Optional;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,9 +70,9 @@ public class LinkCommand extends Translatable implements CommandExecutor {
         }
 
         int code = Integer.parseInt(matcher.group(1));
-        Optional<UUID> optional = linkHandler.linkAccount(author, code);
+        UserPair pair = linkHandler.linkAccount(author, code);
 
-        if (!optional.isPresent()) { // If this gets triggered, the account linking has failed
+        if (pair.isEmpty()) { // If this gets triggered, the account linking has failed
             EmbedBuilder builder = new EmbedBuilder();
             builder.withDescription(tr("discord.link.invalid"));
             builder.withAuthorName(author.getDisplayName(event.getGuild()));
@@ -85,12 +84,12 @@ public class LinkCommand extends Translatable implements CommandExecutor {
             return;
         }
 
-        Bukkit.getPluginManager().callEvent(new PlayerAccountLinkEvent(optional.get(), author, ConnectionRoute.DISCORD));
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(optional.get());
+        Bukkit.getPluginManager().callEvent(new PlayerAccountLinkEvent(pair.getRight(), author, ConnectionRoute.DISCORD));
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(pair.getRight());
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.withAuthorName(offlinePlayer.getName());
-        builder.withAuthorIcon(FormatUtil.avatarUrl(optional.get().toString()));
+        builder.withAuthorIcon(FormatUtil.avatarUrl(pair.getRight().toString()));
         builder.withColor(author.getColorForGuild(event.getGuild()));
         builder.withDescription(tr("discord.link.success"));
 
@@ -102,7 +101,7 @@ public class LinkCommand extends Translatable implements CommandExecutor {
             player.sendMessage(tr("discord.link.success.minecraft", FormatUtil.usuableTag(author)));
         }
 
-        RoleHandler.getInstance().giveConnectionRole(optional.get());
+        RoleHandler.getInstance().giveConnectionRole(pair.getRight());
 
     }
 }

@@ -28,7 +28,7 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (!DependencyHandler.getInstance().isVanished(event.getPlayer())) {
+        if (DependencyHandler.getInstance().isVanished(event.getPlayer())) {
             System.out.println("Player " +event.getPlayer().getName() + " is currently vanished");
             RoleHandler.getInstance().giveConnectionRole(event.getPlayer().getUniqueId());
         }

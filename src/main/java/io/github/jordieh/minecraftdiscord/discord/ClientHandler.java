@@ -86,58 +86,58 @@ public class ClientHandler implements IListener<ReadyEvent> {
         return instance == null ? instance = new ClientHandler() : instance;
     }
 
-    public void giveRole(IRole role, IUser user) {
+    public final void request(Runnable runnable) {
         RequestBuffer.request(() -> {
             try {
+                runnable.run();
+            } catch (DiscordException e) {
+                logger.error("Catched a rare Discord error while doing a request, please visit ...", e);
+            } catch (MissingPermissionsException e) {
+                if (e.getErrorMessage().contains("role hierarchy")) {
+                    logger.warn("{} Please visit ...", e.getErrorMessage());
+                } else {
+                    logger.warn("{} Please edit the bot role", e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void giveRole(IRole role, IUser user) {
+        request(() -> {
+            if (!user.hasRole(role)) {
                 logger.trace("Attempting to give user {} role [{}] ({})", user.getLongID(), role.getName(), role.getLongID());
                 user.addRole(role);
-            } catch (DiscordException | MissingPermissionsException e) {
-                e.printStackTrace();
             }
         });
     }
 
     public void removeRole(IRole role, IUser user) {
-        RequestBuffer.request(() -> {
-            try {
+        request(() -> {
+            if (user.hasRole(role)) {
                 logger.trace("Attempting to remove role [{}] ({}) from user {}", role.getName(), role.getLongID(), user.getLongID());
                 user.removeRole(role);
-            } catch (DiscordException | MissingPermissionsException e) {
-                e.printStackTrace();
             }
         });
     }
 
     public void deleteMessage(IMessage message) {
-        RequestBuffer.request(() -> {
-            try {
-                logger.trace("Attempting to delete message {} in #{}", message.getLongID(), message.getChannel().getName());
-                message.delete();
-            } catch (DiscordException | MissingPermissionsException e) {
-                e.printStackTrace();
-            }
+        request(() -> {
+            logger.trace("Attempting to delete message {} in #{}", message.getLongID(), message.getChannel().getName());
+            message.delete();
         });
     }
 
     public void sendMessage(IChannel channel, String message) {
-        RequestBuffer.request(() -> {
-            try {
-                logger.trace("Attempting to send '{}' to #{}", message, channel.getName());
-                channel.sendMessage(message);
-            } catch (DiscordException | MissingPermissionsException e) {
-                e.printStackTrace();
-            }
+        request(() -> {
+            logger.trace("Attempting to send '{}' to #{}", message, channel.getName());
+            channel.sendMessage(message);
         });
     }
 
     public void sendMessage(IChannel channel, EmbedObject embed) {
-        RequestBuffer.request(() -> {
-            try {
-                logger.trace("Attempting to send an embed to #{}", channel.getName());
-                channel.sendMessage(embed);
-            } catch (DiscordException | MissingPermissionsException e) {
-                e.printStackTrace();
-            }
+        request(() -> {
+            logger.trace("Attempting to send an embed to #{}", channel.getName());
+            channel.sendMessage(embed);
         });
     }
 
@@ -148,7 +148,7 @@ public class ClientHandler implements IListener<ReadyEvent> {
             return;
         }
 
-        logger.info("Disabling plugin: Read previous output for more information");
+        logger.debug("Disabling plugin: Read previous output for more information");
         if (!force) {
             client.logout();
         }

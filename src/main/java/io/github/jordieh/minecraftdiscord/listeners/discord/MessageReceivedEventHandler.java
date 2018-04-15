@@ -33,6 +33,8 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.EmbedBuilder;
 
+import java.util.Optional;
+
 public class MessageReceivedEventHandler extends Translatable implements IListener<MessageReceivedEvent> {
 
     @Override
@@ -51,7 +53,18 @@ public class MessageReceivedEventHandler extends Translatable implements IListen
         if (CommandHandler.getInstance().handleExecution(event)) {
             return;
         }
+
         if (!ChannelHandler.getInstance().getLongMap().containsValue(channel.getLongID())) {
+            return;
+        }
+
+        Optional<IChannel> consoleChannel = ChannelHandler.getInstance().getConnectedChannel("console");
+        if (consoleChannel.isPresent() && consoleChannel.get().getLongID() == channel.getLongID()) {
+            String content = message.getContent();
+            if (content.startsWith("/")) {
+                content = content.replaceFirst("/", "");
+            }
+            Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), content);
             return;
         }
 

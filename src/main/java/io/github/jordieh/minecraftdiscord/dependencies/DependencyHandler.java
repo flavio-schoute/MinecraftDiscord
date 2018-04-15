@@ -78,10 +78,9 @@ public class DependencyHandler {
                 return true;
             }
         }
-        System.out.println(essentials != null);
-        System.out.println(essentials.getUser(player).isVanished());
 
-        return essentials != null && essentials.getUser(player).isVanished();
+        // FIXME player.hasPermission("essentials.silentjoin")? - Essentials is sh*t
+        return essentials != null && (essentials.getUser(player).isVanished());
     }
 
     private boolean integrate(@NonNull Dependency dependency, @NonNull Plugin plugin, Listener listener) {

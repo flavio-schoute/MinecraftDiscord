@@ -88,7 +88,7 @@ public class RoleHandler {
      * @return true if the role has been given, in all other cases false
      */
     public boolean giveConnectionRole(UUID uuid, boolean force) {
-        if (!(force && this.useConnectionRole())) {
+        if (!this.useConnectionRole() && !force) {
             return false;
         }
 
@@ -110,7 +110,7 @@ public class RoleHandler {
             return false;
         }
 
-        ClientHandler.getInstance().removeRole(optional.get(), user.get());
+        ClientHandler.getInstance().giveRole(optional.get(), user.get());
         return true;
     }
 

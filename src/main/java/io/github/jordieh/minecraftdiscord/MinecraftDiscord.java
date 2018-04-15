@@ -29,15 +29,14 @@ import io.github.jordieh.minecraftdiscord.listeners.minecraft.AsyncPlayerChatLis
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerJoinListener;
 import io.github.jordieh.minecraftdiscord.listeners.minecraft.PlayerQuitListener;
 import io.github.jordieh.minecraftdiscord.metrics.MetricsHandler;
+import io.github.jordieh.minecraftdiscord.util.ConsoleWorker;
 import io.github.jordieh.minecraftdiscord.util.LangUtil;
 import io.github.jordieh.minecraftdiscord.world.ChannelHandler;
 import lombok.Getter;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.PatternLayout;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,26 +45,27 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public final class MinecraftDiscord extends JavaPlugin {
 
     private final Logger logger = LoggerFactory.getLogger(MinecraftDiscord.class);
 
-    // Resolving log4j dependency TODO Find a way to fix this in the pom.xml
-    static {
-        ConsoleAppender appender = new ConsoleAppender();
-        PatternLayout layout = new PatternLayout();
-        FileAppender fileAppender = new FileAppender();
-    }
-
     @Getter private static MinecraftDiscord instance;
 
     private double startup;
+
+    public static final Queue<String> queue = new LinkedBlockingDeque<>();
+    public static boolean started = false;
 
     @Override
     public void onEnable() {
         startup = System.currentTimeMillis();
         instance = this;
+
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
 
         logger.debug("Saving default configuration");
         getConfig().options().copyDefaults(true);
@@ -85,7 +85,6 @@ public final class MinecraftDiscord extends JavaPlugin {
             RoleHandler.getInstance().clearConnectionUsers(false);
             LinkHandler.getInstance().saveResources();
         }
-        logger.debug("Plugin disable procedure has been engaged");
         ClientHandler.getInstance().disable(false);
     }
 
@@ -103,6 +102,15 @@ public final class MinecraftDiscord extends JavaPlugin {
         ChannelHandler.getInstance();
         CommandHandler.getInstance();
         DependencyHandler.getInstance();
+
+//        DiscordAppender.process();
+
+        new ConsoleWorker().start();
+//        ChannelHandler.getInstance().getConnectedChannel("console").ifPresent((channel -> {
+//            for (String s : ChannelHandler.getInstance().consoleMessages) {
+//                ClientHandler.getInstance().sendMessage(channel, s);
+//            }
+//        }));
 
         RoleHandler.getInstance().clearConnectionUsers(true);
         RoleHandler.getInstance().distributeConnectionRole();

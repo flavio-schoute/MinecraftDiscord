@@ -19,6 +19,7 @@ package io.github.jordieh.minecraftdiscord.discord.command;
 
 import io.github.jordieh.minecraftdiscord.api.ConnectionRoute;
 import io.github.jordieh.minecraftdiscord.api.events.PlayerAccountUnLinkEvent;
+import io.github.jordieh.minecraftdiscord.common.UserPair;
 import io.github.jordieh.minecraftdiscord.discord.ClientHandler;
 import io.github.jordieh.minecraftdiscord.discord.LinkHandler;
 import io.github.jordieh.minecraftdiscord.util.FormatUtil;
@@ -32,21 +33,18 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.EmbedBuilder;
 
-import java.util.Optional;
-import java.util.UUID;
-
 public class UnlinkCommand extends Translatable implements CommandExecutor {
 
     @Override
     public void execute(MessageReceivedEvent event, IChannel channel, IMessage message, IUser author, String[] args) {
         LinkHandler linkHandler = LinkHandler.getInstance();
-        Optional<UUID> optional = linkHandler.unlink(author.getLongID());
+        UserPair pair = linkHandler.unlink(author.getLongID());
 
-        if (optional.isPresent()) {
-            Bukkit.getPluginManager().callEvent(new PlayerAccountUnLinkEvent(optional.get(), author, ConnectionRoute.DISCORD));
+        if (!pair.isEmpty()) {
+            Bukkit.getPluginManager().callEvent(new PlayerAccountUnLinkEvent(pair.getRight(), author, ConnectionRoute.DISCORD));
 
-            String s = optional.get().toString();
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(optional.get());
+            String s = pair.getRight().toString();
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(pair.getRight());
 
             EmbedBuilder builder = new EmbedBuilder();
             builder.withDescription(tr("discord.unlink.success"));

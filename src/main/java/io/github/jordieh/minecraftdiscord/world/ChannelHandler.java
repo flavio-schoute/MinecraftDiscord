@@ -82,4 +82,8 @@ public final class ChannelHandler {
     public Optional<IChannel> getGlobalChannel() {
         return getConnectedChannel("global");
     }
+
+    public Optional<IChannel> getConsoleChannel() {
+        return getConnectedChannel("global");
+    }
 }
