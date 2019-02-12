@@ -1,2 +1,2 @@
 # MinecraftDiscord
-## Use <https://github.com/Jordieh/MinecraftDiscord>
+This project sucks.
